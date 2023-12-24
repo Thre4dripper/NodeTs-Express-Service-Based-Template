@@ -1,10 +1,10 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import { sequelize } from './sequelizeConfig'
 import morgan from 'morgan'
-import joiErrorHandler from "../app/apis/handlers/JoiErrorHandler";
-import customErrorHandler from "../app/apis/handlers/CustomErrorHandler";
+import joiErrorHandler from "../app/handlers/JoiErrorHandler";
+import customErrorHandler from "../app/handlers/CustomErrorHandler";
 
 const server = async () => {
     const app = express()
@@ -69,7 +69,7 @@ const server = async () => {
     app.use(
         joiErrorHandler,
         customErrorHandler,
-        (err: any, req: Request, res: Response, next: NextFunction) => {
+        (err: any, _req: Request, res: Response) => {
             console.error(err) // Log the error for debugging
             return res.status(500).json({ error: 'Internal Server Error' }) // Respond with a 500 Internal Server Error
         }
