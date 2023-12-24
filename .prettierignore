@@ -1,0 +1,7 @@
+/node_modules
+/.idea
+.env
+.env.sample
+.gitignore
+yarn.lock
+yarn-error.log
