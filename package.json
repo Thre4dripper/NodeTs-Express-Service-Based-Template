@@ -4,7 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/server.ts",
+    "build": "tsc && copyfiles -u 1 \"./src/**/*.{css,html,ico,png,svg}\" dist/src/",
+    "start": "ts-node src/server.ts",
+    "preview": "node dist/src/server.js"
   },
   "author": "Ijlal Ahmad",
   "license": "ISC",
