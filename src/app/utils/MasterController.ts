@@ -1,4 +1,4 @@
-import RequestBuilder, { payloadType } from './RequestBuilder'
+import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { RequestHandler, Router } from 'express'
 import asyncHandler from './AsyncHandler'
 
@@ -38,19 +38,19 @@ class MasterController<P, Q, B> {
         }
 
         validationRules.payload.forEach((payload) => {
-            if (payload.type === payloadType.PARAMS) {
+            if (payload.type === PayloadType.PARAMS) {
                 const schema = payload.schema
                 const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
                 if (error) {
                     this.joiErrors.query?.push(...error.details.map((err) => err.message))
                 }
-            } else if (payload.type === payloadType.QUERY) {
+            } else if (payload.type === PayloadType.QUERY) {
                 const schema = payload.schema
                 const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
                 if (error) {
                     this.joiErrors.param?.push(...error.details.map((err) => err.message))
                 }
-            } else if (payload.type === payloadType.BODY) {
+            } else if (payload.type === PayloadType.BODY) {
                 const schema = payload.schema
                 const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
                 if (error) {
@@ -96,22 +96,52 @@ class MasterController<P, Q, B> {
         })
     }
 
+    /**
+     * @description This method is used to register a GET route for the controller class
+     * @param router router object
+     * @param path path for the route
+     * @param middlewares middlewares for the route
+     */
     static get(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.get(path, middlewares, this.handler())
     }
 
+    /**
+     * @description This method is used to register a POST route for the controller class
+     * @param router router object
+     * @param path path for the route
+     * @param middlewares middlewares for the route
+     */
     static post(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.post(path, middlewares, this.handler())
     }
 
+    /**
+     * @description This method is used to register a PUT route for the controller class
+     * @param router router object
+     * @param path path for the route
+     * @param middlewares middlewares for the route
+     */
     static put(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.put(path, middlewares, this.handler())
     }
 
+    /**
+     * @description This method is used to register a DELETE route for the controller class
+     * @param router router object
+     * @param path path for the route
+     * @param middlewares middlewares for the route
+     */
     static delete(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.delete(path, middlewares, this.handler())
     }
 
+    /**
+     * @description This method is used to register a PATCH route for the controller class
+     * @param router router object
+     * @param path path for the route
+     * @param middlewares middlewares for the route
+     */
     static patch(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.patch(path, middlewares, this.handler())
     }
