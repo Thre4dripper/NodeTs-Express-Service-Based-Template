@@ -135,9 +135,10 @@ class SwaggerConfig {
     }
 
     static recordApi(path: string, method: SwaggerMethod, currentRef: typeof MasterController) {
+        const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '');
         const parameters = this.swaggerDocsFromJoiSchema(currentRef.validate())
         const paths: Paths = this.swaggerDocument.paths
-        const pathObj: Path = paths[path] || {}
+        const pathObj: Path = paths[key] || {}
         const methodObj: Method = pathObj[method] || {
             tags: [],
             summary: '',
@@ -156,7 +157,7 @@ class SwaggerConfig {
         methodObj.description = currentRef.doc().description
         methodObj.operationId = currentRef.name
         pathObj[method] = methodObj
-        paths[path] = pathObj
+        paths[key] = pathObj
         this.swaggerDocument.paths = paths
     }
 }

@@ -41,6 +41,7 @@ class RegisterUserController extends MasterController<String, Number, Boolean> {
     }
 
     protected async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
+        console.log(params, query, body)
         return new ResponseBuilder(StatusCodes.SUCCESS, 'Success', 'AEgagaeg')
     }
 }
