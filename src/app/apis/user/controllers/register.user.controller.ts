@@ -5,7 +5,15 @@ import RequestBuilder from '../../../utils/RequestBuilder'
 import Joi from 'joi'
 
 class RegisterUserController extends MasterController<String, Number, Boolean> {
-    protected static validate(): RequestBuilder {
+    static doc(): { tags: string[], summary: string, description: string } {
+        return {
+            tags: ['User'],
+            summary: 'Register User',
+            description: 'Register User',
+        }
+    }
+
+    public static validate(): RequestBuilder {
         const payload = new RequestBuilder()
 
         payload.addToBody(

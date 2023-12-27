@@ -8,6 +8,7 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import swaggerUI from 'swagger-ui-express'
 import swaggerDocument from '../../swagger.json'
+import SwaggerConfig from './swaggerConfig'
 
 const server = async () => {
     const app = express()
@@ -66,7 +67,6 @@ const server = async () => {
             preflightContinue: false,
         }),
     )
-    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
     const loadRouters = async (dir: string) => {
         //load all routers from dir and sub dir
         const entries = await fs.readdir(dir, { withFileTypes: true })
@@ -83,8 +83,9 @@ const server = async () => {
             }
         }
     }
-
+    SwaggerConfig.initSwagger(swaggerDocument)
     await loadRouters(path.join(__dirname, '../app/routes'))
+    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()))
     app.use(
         joiErrorHandler,
         customErrorHandler,
