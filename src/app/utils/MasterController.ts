@@ -1,5 +1,5 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder'
-import { RequestHandler, Router } from 'express'
+import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
 
 class MasterController<P, Q, B> {
@@ -71,7 +71,7 @@ class MasterController<P, Q, B> {
 
     private static handler(): RequestHandler {
         const self = this
-        return asyncHandler(async (req: any, res: any) => {
+        return asyncHandler(async (req: Request, res: Response) => {
             const controller = new self()
             controller.req = req
             controller.res = res
@@ -79,7 +79,7 @@ class MasterController<P, Q, B> {
             controller.query = req.query
             controller.body = req.body
             controller.headers = req.headers
-            controller.allData = { ...req.params, ...req.query, ...req.body, ...req.headers }
+            controller.allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req }
             const validationRules = this.validate()
             const joiErrors = this.joiValidator(req.params, validationRules)
 

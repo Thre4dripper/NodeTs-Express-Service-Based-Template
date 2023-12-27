@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express'
-import bodyParser from 'body-parser'
 import cors from 'cors'
 import { sequelize } from './sequelizeConfig'
 import morgan from 'morgan'
@@ -7,11 +6,14 @@ import joiErrorHandler from '../app/handlers/JoiErrorHandler'
 import customErrorHandler from '../app/handlers/CustomErrorHandler'
 import * as fs from 'fs/promises'
 import * as path from 'path'
+import swaggerUI from 'swagger-ui-express'
+import swaggerDocument from '../../swagger.json'
 
 const server = async () => {
     const app = express()
-    app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(express.static('public'))
+    app.use(express.json())
+    app.use(express.urlencoded({ extended: true }))
     app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
     app.use(
         cors({
@@ -64,6 +66,7 @@ const server = async () => {
             preflightContinue: false,
         }),
     )
+    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
     const loadRouters = async (dir: string) => {
         //load all routers from dir and sub dir
         const entries = await fs.readdir(dir, { withFileTypes: true })
