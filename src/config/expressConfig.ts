@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
 import cors from 'cors'
-import { sequelize } from './sequelizeConfig'
 import morgan from 'morgan'
 import joiErrorHandler from '../app/handlers/JoiErrorHandler'
 import customErrorHandler from '../app/handlers/CustomErrorHandler'
@@ -99,17 +98,6 @@ const server = async () => {
     app.use((_req: Request, res: Response) => {
         return res.status(404).json({ error: 'Route Not Found' })
     })
-
-    try {
-        await (async () => {
-            await sequelize.authenticate()
-            console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.')
-            await sequelize.sync({ alter: false })
-            console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.')
-        })()
-    } catch (err) {
-        console.error('Unable to connect to the database:', err)
-    }
     return app
 }
 
