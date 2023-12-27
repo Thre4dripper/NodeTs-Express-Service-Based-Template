@@ -5,7 +5,7 @@ import RequestBuilder from '../../../utils/RequestBuilder'
 import Joi from 'joi'
 
 class RegisterUserController extends MasterController<String, Number, Boolean> {
-    static doc(): { tags: string[], summary: string, description: string } {
+    static doc() {
         return {
             tags: ['User'],
             summary: 'Register User',

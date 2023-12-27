@@ -3,14 +3,26 @@ import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
 import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
 
+interface IJoiErrors {
+    query?: string[]
+    param?: string[]
+    body?: string[]
+}
+
+interface ISwaggerDoc {
+    tags: string[]
+    summary: string
+    description: string
+}
+
 class MasterController<P, Q, B> {
-    private static joiErrors: { query?: string[], param?: string[], body?: string[] } = {
+    private static joiErrors: IJoiErrors = {
         query: [],
         param: [],
         body: [],
     }
 
-    public static doc(): { tags: string[], summary: string, description: string } {
+    public static doc(): ISwaggerDoc {
         return {
             tags: [],
             summary: '',

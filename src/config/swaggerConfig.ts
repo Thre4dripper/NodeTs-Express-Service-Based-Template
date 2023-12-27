@@ -135,7 +135,7 @@ class SwaggerConfig {
     }
 
     static recordApi(path: string, method: SwaggerMethod, currentRef: typeof MasterController) {
-        const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '');
+        const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '')
         const parameters = this.swaggerDocsFromJoiSchema(currentRef.validate())
         const paths: Paths = this.swaggerDocument.paths
         const pathObj: Path = paths[key] || {}
@@ -144,11 +144,7 @@ class SwaggerConfig {
             summary: '',
             description: '',
             produces: ['application/json'],
-            responses: {
-                200: {
-                    description: 'OK',
-                },
-            },
+            responses: this.exampleResponses(),
         }
 
         methodObj.parameters = parameters
@@ -159,6 +155,90 @@ class SwaggerConfig {
         pathObj[method] = methodObj
         paths[key] = pathObj
         this.swaggerDocument.paths = paths
+    }
+
+    private static exampleResponses() {
+        return {
+            200: {
+                description: 'OK',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        status: {
+                            type: 'string',
+                            example: 'success',
+                        },
+                        data: {
+                            type: 'object',
+                        },
+                        message: {
+                            type: 'string',
+                            example: 'Success',
+                        },
+                    },
+                },
+            },
+            400: {
+                description: 'Bad Request',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        status: {
+                            type: 'string',
+                            example: 'error',
+                        },
+                        data: {
+                            type: 'object',
+                        },
+                        message: {
+                            type: 'string',
+                            example: 'Bad Request',
+                        },
+                        errors: {
+                            type: 'object',
+                        },
+                    },
+                },
+            },
+            404: {
+                description: 'Not Found',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        status: {
+                            type: 'string',
+                            example: 'error',
+                        },
+                        data: {
+                            type: 'object',
+                        },
+                        message: {
+                            type: 'string',
+                            example: 'Not Found',
+                        },
+                    },
+                },
+            },
+            500: {
+                description: 'Internal Server Error',
+                schema: {
+                    type: 'object',
+                    properties: {
+                        status: {
+                            type: 'string',
+                            example: 'error',
+                        },
+                        data: {
+                            type: 'object',
+                        },
+                        message: {
+                            type: 'string',
+                            example: 'Internal Server Error',
+                        },
+                    },
+                },
+            },
+        }
     }
 }
 
