@@ -2,7 +2,7 @@ import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
 import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
-import { Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 
 interface IJoiErrors {
     query?: string[]
@@ -16,7 +16,13 @@ interface ISwaggerDoc {
     description: string
 }
 
+interface ISocketClient {
+    event: string
+    masterController: MasterController<any, any, any>
+}
+
 class MasterController<P, Q, B> {
+    private static requests: ISocketClient[] = []
 
     public static doc(): ISwaggerDoc {
         return {
@@ -33,8 +39,7 @@ class MasterController<P, Q, B> {
     protected async restController(params: P, query: Q, body: B, headers: any, allData: any): Promise<any> {
     }
 
-    protected async socketController(socket: Socket, payload: any): Promise<any> {
-
+    protected socketController(io: Server, socket: Socket, payload: any): any {
     }
 
     private static joiValidator(params: any, query: any, body: any, validationRules: RequestBuilder): IJoiErrors | null {
@@ -151,9 +156,22 @@ class MasterController<P, Q, B> {
         return router.delete(path, middlewares, this.handler())
     }
 
-    static socket(path: string, event: string) {
-        // SwaggerConfig.recordApi(path, SwaggerMethod.SOCKET, this)
+    static socketListener = (io: Server, socket: Socket) => {
+        console.log('New client connected')
+        socket.on('disconnect', () => {
+            console.log('Client disconnected')
+        })
 
+        this.requests.forEach((client) => {
+            socket.on(client.event, (payload) => {
+                client.masterController.socketController(io, socket, payload)
+            })
+        })
+    }
+
+    static socketIO(event: string) {
+        this.requests.push({ event, masterController: new this() })
+        console.log(this.requests)
     }
 }
 

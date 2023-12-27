@@ -4,4 +4,5 @@ import express from 'express'
 export default (app: express.Application) => {
     RegisterUserController.get(app, '/api/v1/user/register/:id', [])
     RegisterUserController.post(app, '/api/v1/user/register/:id', [])
+    RegisterUserController.socketIO("hello")
 }

@@ -1,6 +1,7 @@
 import { Server } from 'socket.io'
+import http from 'http'
 
-const socketConfig = (server: any) => {
+const socketConfig = (server: http.Server) => {
     return new Server(server, {
         /* Socket.IO options (if needed) */
         cors: {

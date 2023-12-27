@@ -3,6 +3,7 @@ import { StatusCodes } from '../../../enums/StatusCodes'
 import ResponseBuilder from '../../../utils/ResponseBuilder'
 import RequestBuilder from '../../../utils/RequestBuilder'
 import Joi from 'joi'
+import { Server, Socket } from 'socket.io'
 
 class RegisterUserController extends MasterController<String, Number, Boolean> {
     static doc() {
@@ -43,6 +44,11 @@ class RegisterUserController extends MasterController<String, Number, Boolean> {
     protected async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
         console.log(params, query, body)
         return new ResponseBuilder(StatusCodes.SUCCESS, 'Success', 'AEgagaeg')
+    }
+
+    protected socketController(io: Server, socket: Socket, payload: any): any {
+        console.log(payload)
+        socket.emit('message', 'Hello from server')
     }
 }
 
