@@ -1,25 +1,24 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
+import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
 
 class MasterController<P, Q, B> {
-    params: P
-    query: Q
-    body: B
-    headers: any
-    req: any
-    res: any
-    allData: any
-    static joiErrors: { query?: string[], param?: string[], body?: string[] } = {
+    private static joiErrors: { query?: string[], param?: string[], body?: string[] } = {
         query: [],
         param: [],
         body: [],
     }
 
-    protected static doc(): any {
+    public static doc(): { tags: string[], summary: string, description: string } {
+        return {
+            tags: [],
+            summary: '',
+            description: '',
+        }
     }
 
-    protected static validate(): RequestBuilder {
+    public static validate(): RequestBuilder {
         return new RequestBuilder()
     }
 
@@ -73,13 +72,8 @@ class MasterController<P, Q, B> {
         const self = this
         return asyncHandler(async (req: Request, res: Response) => {
             const controller = new self()
-            controller.req = req
-            controller.res = res
-            controller.params = req.params
-            controller.query = req.query
-            controller.body = req.body
-            controller.headers = req.headers
-            controller.allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req }
+
+            const allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req }
             const validationRules = this.validate()
             const joiErrors = this.joiValidator(req.params, validationRules)
 
@@ -91,7 +85,7 @@ class MasterController<P, Q, B> {
                     errors: this.joiErrors,
                 })
             }
-            const { response } = await controller.restController(req.params, req.query, req.body, req.headers, controller.allData)
+            const { response } = await controller.restController(req.params, req.query, req.body, req.headers, allData)
             res.status(response.status).json(response)
         })
     }
@@ -103,6 +97,7 @@ class MasterController<P, Q, B> {
      * @param middlewares middlewares for the route
      */
     static get(router: Router, path: string, middlewares: RequestHandler[]) {
+        SwaggerConfig.recordApi(path, SwaggerMethod.GET, this)
         return router.get(path, middlewares, this.handler())
     }
 
@@ -134,16 +129,6 @@ class MasterController<P, Q, B> {
      */
     static delete(router: Router, path: string, middlewares: RequestHandler[]) {
         return router.delete(path, middlewares, this.handler())
-    }
-
-    /**
-     * @description This method is used to register a PATCH route for the controller class
-     * @param router router object
-     * @param path path for the route
-     * @param middlewares middlewares for the route
-     */
-    static patch(router: Router, path: string, middlewares: RequestHandler[]) {
-        return router.patch(path, middlewares, this.handler())
     }
 }
 
