@@ -25,7 +25,7 @@ class MasterController<P, Q, B> {
     protected async restController(params: P, query: Q, body: B, headers: any, allData: any): Promise<any> {
     }
 
-    private static joiValidator(data: any, validationRules: RequestBuilder): Boolean {
+    private static joiValidator(params: any, query: any, body: any, validationRules: RequestBuilder): Boolean {
         if (validationRules.get.length === 0) {
             return true
         }
@@ -39,19 +39,19 @@ class MasterController<P, Q, B> {
         validationRules.payload.forEach((payload) => {
             if (payload.type === PayloadType.PARAMS) {
                 const schema = payload.schema
-                const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
-                if (error) {
-                    this.joiErrors.query?.push(...error.details.map((err) => err.message))
-                }
-            } else if (payload.type === PayloadType.QUERY) {
-                const schema = payload.schema
-                const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
+                const { error } = schema.validate(params, { abortEarly: false, allowUnknown: true })
                 if (error) {
                     this.joiErrors.param?.push(...error.details.map((err) => err.message))
                 }
+            } else if (payload.type === PayloadType.QUERY) {
+                const schema = payload.schema
+                const { error } = schema.validate(query, { abortEarly: false, allowUnknown: true })
+                if (error) {
+                    this.joiErrors.query?.push(...error.details.map((err) => err.message))
+                }
             } else if (payload.type === PayloadType.BODY) {
                 const schema = payload.schema
-                const { error } = schema.validate(data, { abortEarly: false, allowUnknown: true })
+                const { error } = schema.validate(body, { abortEarly: false, allowUnknown: true })
                 if (error) {
                     this.joiErrors.body?.push(...error.details.map((err) => err.message))
                 }
@@ -75,7 +75,7 @@ class MasterController<P, Q, B> {
 
             const allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req }
             const validationRules = this.validate()
-            const joiErrors = this.joiValidator(req.params, validationRules)
+            const joiErrors = this.joiValidator(req.params, req.query, req.body, validationRules)
 
             if (!joiErrors) {
                 return res.status(400).json({
@@ -108,6 +108,7 @@ class MasterController<P, Q, B> {
      * @param middlewares middlewares for the route
      */
     static post(router: Router, path: string, middlewares: RequestHandler[]) {
+        SwaggerConfig.recordApi(path, SwaggerMethod.POST, this)
         return router.post(path, middlewares, this.handler())
     }
 
@@ -118,6 +119,7 @@ class MasterController<P, Q, B> {
      * @param middlewares middlewares for the route
      */
     static put(router: Router, path: string, middlewares: RequestHandler[]) {
+        SwaggerConfig.recordApi(path, SwaggerMethod.PUT, this)
         return router.put(path, middlewares, this.handler())
     }
 
@@ -128,6 +130,7 @@ class MasterController<P, Q, B> {
      * @param middlewares middlewares for the route
      */
     static delete(router: Router, path: string, middlewares: RequestHandler[]) {
+        SwaggerConfig.recordApi(path, SwaggerMethod.DELETE, this)
         return router.delete(path, middlewares, this.handler())
     }
 }
