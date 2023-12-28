@@ -1,11 +1,9 @@
 import http from 'http'
 import serverConfig from './config/expressConfig'
-// import { sequelizeConnect } from './config/sequelizeConfig'
-import socketConfig from './config/socketConfig'
-import MasterController from './app/utils/MasterController'
 import { mongooseConnect } from './config/mongooseConfig'
 import * as process from 'process'
 import { sequelizeConnect } from './config/sequelizeConfig'
+import SocketConfig from './config/socketConfig'
 
 require('dotenv').config()
 
@@ -37,10 +35,10 @@ const port = process.env.PORT || 3000
     const httpServer = http.createServer(app)
 
     // Integrate Socket.IO with the HTTP server
-    const io = socketConfig(httpServer)
+    const io = SocketConfig.init(httpServer)
 
     io.on('connection', (socket) => {
-        MasterController.socketListener(io, socket)
+        SocketConfig.socketListener(io, socket)
     })
 
     // Start listening for HTTP requests

@@ -24,7 +24,11 @@ interface ISocketClient {
 class MasterController<P, Q, B> {
     private static requests: ISocketClient[] = []
 
-    public static doc(): ISwaggerDoc {
+    static getRequests(): ISocketClient[] {
+        return this.requests
+    }
+
+    static doc(): ISwaggerDoc {
         return {
             tags: [],
             summary: '',
@@ -156,22 +160,8 @@ class MasterController<P, Q, B> {
         return router.delete(path, middlewares, this.handler())
     }
 
-    static socketListener = (io: Server, socket: Socket) => {
-        console.log('New client connected')
-        socket.on('disconnect', () => {
-            console.log('Client disconnected')
-        })
-
-        this.requests.forEach((client) => {
-            socket.on(client.event, (payload) => {
-                client.masterController.socketController(io, socket, payload)
-            })
-        })
-    }
-
     static socketIO(event: string) {
         this.requests.push({ event, masterController: new this() })
-        console.log(this.requests)
     }
 }
 
