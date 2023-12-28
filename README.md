@@ -1,7 +1,5 @@
 # NodeTs-Express-Service-Based-Template
 
-### Features
-
 ![Node](https://img.shields.io/badge/-Node-339933?style=flat-square&logo=Node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-007ACC?style=flat-square&logo=TypeScript&logoColor=white)
 ![Express](https://img.shields.io/badge/-Express-000000?style=flat-square&logo=Express&logoColor=white)
@@ -16,42 +14,42 @@
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
 
-This repository contains a server application built with TypeScript and Socket.IO. It features a `MasterController` class that handles HTTP requests and socket events, and provides methods for validating request payloads and handling request and response. The server is built with Express.js and uses Sequelize for database operations. It also includes Swagger documentation for the controller classes. The project uses Yarn as a package manager and includes scripts for development, building, and running the server.
+A fully configured Node.js, Express, and TypeScript server template with a service-based architecture.
+That can interact with MySQL, PostgresSQL, Cassandra, MongoDB.
+Out-of-the-box validation, documentation generation, and
+more.
 
 ## Modules
 
-### MasterController
+### MasterController (Heart of the application)
 
-The `MasterController` class is the cornerstone of this server application, offering extensive functionalities for managing HTTP requests, socket events, payload validation, and more.
+The `MasterController` is the backbone of this server application, providing functionalities for managing HTTP requests,
+socket events, payload validation, and more.
 
 #### Features
 
-- **Controller Logic Handling**: The `restController` method manages the core logic for handling HTTP requests, allowing for customization and tailored responses based on received parameters, queries, body content, headers, and other middleware-generated data.
-
-- **Socket Event Handling**: The `socketController` method facilitates the logic execution upon receiving socket events, providing a means to process incoming data from connected clients through Socket.IO.
-
-- **Payload Validation**: The `joiValidator` method allows the validation of incoming request payloads based on provided validation rules. It checks and reports errors related to parameters, queries, and request body, ensuring data conformity as per defined schema.
-
-- **Swagger Documentation Generation**: The `doc` method generates Swagger documentation for the respective controller classes, ensuring comprehensive and easily accessible API documentation.
-
-- **Route Handling**: The `get`, `post`, `put`, and `delete` methods facilitate the registration of routes within the Express router, automatically recording API paths and methods for Swagger documentation and delegating request handling to `restController`.
+- **Controller Logic Handling**: `restController` method manages HTTP requests.
+- **Socket Event Handling**: `socketController` method manages socket events.
+- **Payload Validation**: `joiValidator` method validates incoming request payloads.
+- **Swagger Documentation Generation**: `doc` method generates Swagger documentation.
+- **Route Handling**: `get`, `post`, `put`, and `delete` methods register routes within the Express router.
 
 #### Usage
 
-The `MasterController` serves as the foundation for creating controller classes responsible for specific routes or socket events. By extending this class, developers can leverage its robust functionalities to craft controllers tailored to their application's needs, ensuring efficient request handling, validation, and documentation generation.
-
-Utilize the provided methods to create and manage controllers, validate payloads, and generate Swagger documentation for clear API understanding and efficient development.
+Extend the `MasterController` to create controller classes for specific routes or socket events. Use the provided
+methods for efficient request handling, validation, and documentation generation.
 
 ### Installation
 
 #### Clone
+
 > Clone this repo to your local machine using `
 > ```bash
 > $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
 
-
 #### Setup
+
 > Install dependencies
 > ```bash
 > $ npm install or yarn
