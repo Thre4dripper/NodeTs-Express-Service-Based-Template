@@ -81,3 +81,15 @@ const sequelizeOptions: SequelizeOptions = {
 }
 
 export const sequelize = new Sequelize(sequelizeOptions)
+
+export const sequelizeConnect = async () => {
+    try {
+        await sequelize.authenticate()
+        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.')
+        await sequelize.sync({ alter: false })
+        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.')
+    } catch (err) {
+        console.error('Unable to connect to the database:', err)
+        throw err
+    }
+}

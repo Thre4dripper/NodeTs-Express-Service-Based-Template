@@ -1,8 +1,11 @@
 import http from 'http'
 import serverConfig from './config/expressConfig'
-import { sequelize } from './config/sequelizeConfig'
+// import { sequelizeConnect } from './config/sequelizeConfig'
 import socketConfig from './config/socketConfig'
 import MasterController from './app/utils/MasterController'
+import { mongooseConnect } from './config/mongooseConfig'
+import * as process from 'process'
+import { sequelizeConnect } from './config/sequelizeConfig'
 
 require('dotenv').config()
 
@@ -10,16 +13,26 @@ const port = process.env.PORT || 3000
 ;(async () => {
     const app = await serverConfig()
 
-    try {
-        await (async () => {
-            await sequelize.authenticate()
-            console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.')
-            await sequelize.sync({ alter: false })
-            console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.')
-        })()
-    } catch (err) {
-        console.error('Unable to connect to the database:', err)
+    // getting the dialect from .env file
+    if (!process.env.DB_DIALECT) {
+        throw new Error('DB_DIALECT not found in .env file')
     }
+
+    // Connect to the database
+    if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' || process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite') {
+        sequelizeConnect().catch((err) => {
+            console.error('Unable to connect to the database:', err)
+            throw err
+        })
+    } else if (process.env.DB_DIALECT === 'mongodb') {
+        mongooseConnect().catch((err) => {
+            console.error('Unable to connect to the database:', err)
+            throw err
+        })
+    } else {
+        throw new Error('DB_DIALECT must be either postgres, mysql, mariadb, sqlite or mongodb')
+    }
+
     // Create an HTTP server instance
     const httpServer = http.createServer(app)
 
