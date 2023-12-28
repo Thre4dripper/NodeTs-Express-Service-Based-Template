@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io'
 import http from 'http'
 import MasterController from '../app/utils/MasterController'
+import asyncHandler from '../app/utils/AsyncHandler'
 
 class SocketConfig {
     /**
@@ -30,7 +31,9 @@ class SocketConfig {
 
         MasterController.getSocketRequests().forEach((client) => {
             socket.on(client.event, (payload) => {
-                client.masterController.socketController(io, socket, payload)
+                asyncHandler(
+                    client.masterController.socketController(io, socket, payload),
+                )
             })
         })
     }
