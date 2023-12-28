@@ -48,7 +48,7 @@ methods for efficient request handling, validation, and documentation generation
 > $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
 
-#### Setup
+### Setup
 
 > Install dependencies
 > ```bash
@@ -69,6 +69,56 @@ methods for efficient request handling, validation, and documentation generation
 > ```bash
 > $ npm run start or yarn start
 > ```
+
+### Docker
+
+#### Build the image
+
+```bash
+$ docker build -t <image-name> .
+```
+
+#### Run the container
+
+```bash
+$ docker run -p <port>:<port> <image-name>
+```
+
+#### Run the container in background
+
+```bash
+$ docker run -d -p <port>:<port> <image-name>
+```
+
+#### Stop the container
+
+```bash
+$ docker stop <container-id>
+```
+
+#### Remove the container
+
+```bash
+$ docker rm <container-id>
+```
+
+#### Remove the image
+
+```bash
+$ docker rmi <image-name>
+```
+
+#### List all containers
+
+```bash
+$ docker ps -a
+```
+
+#### List all running containers
+
+```bash
+$ docker ps
+```
 
 ### Contributing
 
