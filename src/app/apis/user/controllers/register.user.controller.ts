@@ -41,12 +41,12 @@ class RegisterUserController extends MasterController<String, Number, Boolean> {
         return payload
     }
 
-    protected async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
+    async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
         console.log(params, query, body)
         return new ResponseBuilder(StatusCodes.SUCCESS, 'Success', 'AEgagaeg')
     }
 
-    protected socketController(io: Server, socket: Socket, payload: any): any {
+    socketController(io: Server, socket: Socket, payload: any): any {
         console.log(payload)
         socket.emit('message', 'Hello from server')
     }

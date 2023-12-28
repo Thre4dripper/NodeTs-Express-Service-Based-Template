@@ -28,7 +28,7 @@ class SocketConfig {
             console.log('Client disconnected')
         })
 
-        MasterController.getRequests().forEach((client) => {
+        MasterController.getSocketRequests().forEach((client) => {
             socket.on(client.event, (payload) => {
                 client.masterController.socketController(io, socket, payload)
             })
