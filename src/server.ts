@@ -18,15 +18,19 @@ const port = process.env.PORT || 3000
 
     // Connect to the database
     if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' || process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite') {
-        sequelizeConnect().catch((err) => {
+        try {
+            await sequelizeConnect()
+        } catch (err) {
             console.error('Unable to connect to the database:', err)
             throw err
-        })
+        }
     } else if (process.env.DB_DIALECT === 'mongodb') {
-        mongooseConnect().catch((err) => {
+        try {
+            await mongooseConnect()
+        } catch (err) {
             console.error('Unable to connect to the database:', err)
             throw err
-        })
+        }
     } else {
         throw new Error('DB_DIALECT must be either postgres, mysql, mariadb, sqlite or mongodb')
     }
