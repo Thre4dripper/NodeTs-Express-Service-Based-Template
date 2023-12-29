@@ -2,19 +2,16 @@
 FROM node:20
 
 # Create app directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install nodemon and ts-node globally
 RUN npm install -g nodemon ts-node
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy source files
+COPY . .
 
 # Install app dependencies
 RUN npm install
-
-# Copy source files
-COPY src ./src
 
 # Build the application
 RUN npm run build
