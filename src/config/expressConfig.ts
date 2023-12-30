@@ -6,7 +6,6 @@ import customErrorHandler from '../app/handlers/CustomErrorHandler'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import swaggerUI from 'swagger-ui-express'
-import swaggerDocument from '../../swagger.json'
 import SwaggerConfig from './swaggerConfig'
 
 const server = async () => {
@@ -78,11 +77,17 @@ const server = async () => {
                 await loadRouters(fullPath)
             } else if (entry.isFile() && (entry.name.endsWith('.router.ts') || entry.name.endsWith('.router.js'))) {
                 const router = require(fullPath)
-                router.default(app)
+                //to support both default exports in commonjs and es6
+                if (router.default)
+                    router.default(app)
+                else router(app)
             }
         }
     }
-    SwaggerConfig.initSwagger(swaggerDocument)
+    SwaggerConfig.initSwagger({
+        path: path.join(__dirname, '../../swagger.json'),
+        modify: true
+    })
     await loadRouters(path.join(__dirname, '../app/routes'))
     app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()))
     app.use(

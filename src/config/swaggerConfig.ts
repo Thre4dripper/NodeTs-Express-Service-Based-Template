@@ -1,6 +1,7 @@
 import MasterController from '../app/utils/MasterController'
 import RequestBuilder, { PayloadType } from '../app/utils/RequestBuilder'
 import j2s from 'joi-to-swagger'
+import * as fs from 'fs/promises'
 
 export enum SwaggerMethod {
     GET = 'get',
@@ -74,12 +75,43 @@ interface SwaggerDocument {
     paths: Paths;
 }
 
+interface SwaggerConfigOptions {
+    path: string;
+    modify?: Boolean;
+}
 
 class SwaggerConfig {
     private static swaggerDocument: SwaggerDocument
+    private static swaggerPath: string
+    private static swaggerModify: Boolean | undefined
 
-    static initSwagger(swaggerDocument: SwaggerDocument) {
-        this.swaggerDocument = swaggerDocument
+    static initSwagger(options?: SwaggerConfigOptions) {
+        if (options) {
+            const { path, modify } = options
+            this.swaggerPath = path
+            this.swaggerModify = modify
+            this.swaggerDocument = require(path)
+        } else {
+            this.swaggerDocument = {
+                swagger: '2.0',
+                info: {
+                    version: '1.0.0',
+                    title: 'Node Swagger API',
+                    description: 'Demonstrating how to describe a RESTful API with Swagger',
+                },
+                schemes: ['http', 'https'],
+                consumes: ['application/json'],
+                produces: ['application/json'],
+                securityDefinitions: {
+                    token: {
+                        type: 'apiKey',
+                        name: 'Authorization',
+                        in: 'header',
+                    },
+                },
+                paths: {},
+            }
+        }
     }
 
     static getSwaggerDocument() {
@@ -155,6 +187,15 @@ class SwaggerConfig {
         pathObj[method] = methodObj
         paths[key] = pathObj
         this.swaggerDocument.paths = paths
+
+        if (this.swaggerModify) {
+            fs.writeFile(this.swaggerPath, JSON.stringify(this.swaggerDocument, null, 2)).then(() => {
+                console.log('Swagger document updated')
+
+            }).catch((err) => {
+                console.log('Error updating swagger document', err)
+            })
+        }
     }
 
     private static exampleResponses() {

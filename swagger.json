@@ -22,5 +22,302 @@
       "in": "header"
     }
   },
-  "paths": {}
+  "paths": {
+    "/api/v1/user/register/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Register User",
+        "description": "Register User",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "success"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Bad Request"
+                },
+                "errors": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Not Found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 20
+                }
+              },
+              "required": [
+                "name",
+                "lastName",
+                "email",
+                "password"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          }
+        ],
+        "operationId": "RegisterUserController"
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Register User",
+        "description": "Register User",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "success"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Bad Request"
+                },
+                "errors": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Not Found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "error"
+                },
+                "data": {
+                  "type": "object"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Internal Server Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 20
+                }
+              },
+              "required": [
+                "name",
+                "lastName",
+                "email",
+                "password"
+              ],
+              "additionalProperties": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          }
+        ],
+        "operationId": "RegisterUserController"
+      }
+    }
+  }
 }
