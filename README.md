@@ -6,7 +6,9 @@
 ![Sequelize](https://img.shields.io/badge/-Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white)
 ![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white)
 ![PostgresSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=PostgreSQL&logoColor=white)
-![Cassandra](https://img.shields.io/badge/-Cassandra-1287B1?style=flat-square&logo=Apache-Cassandra&logoColor=white)
+![MariaDB](https://img.shields.io/badge/-MariaDB-003545?style=flat-square&logo=MariaDB&logoColor=white)
+![Sqlite](https://img.shields.io/badge/-Sqlite-003B57?style=flat-square&logo=Sqlite&logoColor=white)
+![MSSql](https://img.shields.io/badge/-MSSql-CC2927?style=flat-square&logo=Microsoft-SQL-Server&logoColor=white)
 ![Mongoose](https://img.shields.io/badge/-Mongoose-880000?style=flat-square&logo=Mongoose&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat-square&logo=MongoDB&logoColor=white)
 ![Validations](https://img.shields.io/badge/-Validations-FF0000?style=flat-square)
@@ -14,17 +16,35 @@
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
 
-A fully configured Node.js, Express, and TypeScript server template with a service-based architecture.
-That can interact with MySQL, PostgresSQL, Cassandra, MongoDB.
+A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture,
+That can interact with MySQL, PostgresSQL, MariaDB, Sqlite, MSSql, MongoDB.
 Out-of-the-box validation, documentation generation, and
 more.
 
+## Features
+
+- **Node.js, Express, TypeScript**: Robust server setup using Node.js, Express, and TypeScript.
+- **Sequelize**: Integration with Sequelize for SQL database operations.
+- **Mongoose**: Integration with Mongoose for MongoDB database operations.
+- **Database Compatibility**: Interact with MySQL, PostgreSQL, MariaDB, Sqlite, MSSql, MongoDB.
+- **Validation Mechanism**: Pre-built validations for request payloads.
+- **Automated Swagger Documentation**: Automatically generated documentation available at `/api-docs`.
+- **Service-Based Architecture**: Modular approach for better organization and scalability.
+- **Socket Events**: Socket event handling using Socket.io.
+- **Docker**: Dockerized for easy deployment.
+
 ## Modules
+
+### Automated Swagger Docs
+
+- Swagger documentation auto-generated for all routes.
+- Accessible at `/api-docs`.
+- Generated using the `doc` method in the `MasterController` class and Joi validation schemas.
 
 ### MasterController (Heart of the application)
 
-The `MasterController` is the backbone of this server application, providing functionalities for managing HTTP requests,
-socket events, payload validation, and more.
+The `MasterController` is the backbone, providing functionalities for managing HTTP requests, socket events, payload
+validation, and more.
 
 #### Features
 
@@ -72,6 +92,19 @@ methods for efficient request handling, validation, and documentation generation
 
 ### Docker
 
+#### Docker Environment variables
+
+- `PORT` - Port number for the server to run on.
+- `DB_DIALECT` - Database dialect to use.
+  (Options: mysql, postgres, mariadb, sqlite, mssql, mongodb)
+- `DB_HOST` - Database host.
+- `DB_PORT` - Database port.
+- `DB_USER` - Database username.
+- `DB_PASS` - Database password.
+- `DB_NAME` - Database name.
+- `MONGO_URI` - MongoDB URI (Only for MongoDB Dialect).
+- `JWT_SECRET` - Secret key for JWT.
+
 #### Build the image
 
 ```bash
@@ -81,13 +114,13 @@ $ docker build -t <image-name> .
 #### Run the container
 
 ```bash
-$ docker run -p <port>:<port> <image-name>
+$ docker run -e <env-variable>=<value> -p <port>:<port> <image-name>
 ```
 
 #### Run the container in background
 
 ```bash
-$ docker run -d -p <port>:<port> <image-name>
+$ docker run -d -e <env-variable>=<value> -p <port>:<port> <image-name>
 ```
 
 #### Stop the container
