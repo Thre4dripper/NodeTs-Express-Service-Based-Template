@@ -1,13 +1,9 @@
 version: '3.9'
 services:
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    networks:
-      - app-network
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: node-app
     container_name: node-app
     restart: unless-stopped
@@ -15,12 +11,14 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB_DIALECT=mongodb
+      - DB_DIALECT=postgres
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=password
       - MONGO_URI=mongodb://mongo:27017/Test
       - JWT_SECRET=secret
-    depends_on:
-      mongo:
-        condition: service_started
     networks:
       - app-network
 networks:
