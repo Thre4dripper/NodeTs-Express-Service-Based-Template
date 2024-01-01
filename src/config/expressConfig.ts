@@ -86,7 +86,7 @@ const server = async () => {
     }
     SwaggerConfig.initSwagger({
         path: path.join(__dirname, '../../swagger.json'),
-        modify: true
+        modify: false
     })
     await loadRouters(path.join(__dirname, '../app/routes'))
     app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()))

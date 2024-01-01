@@ -91,6 +91,11 @@ class SwaggerConfig {
             this.swaggerPath = path
             this.swaggerModify = modify
             this.swaggerDocument = require(path)
+            this.swaggerDocument.paths = {}
+
+            if (this.swaggerModify) {
+                this.modifySwaggerDocument()
+            }
         } else {
             this.swaggerDocument = {
                 swagger: '2.0',
@@ -189,13 +194,19 @@ class SwaggerConfig {
         this.swaggerDocument.paths = paths
 
         if (this.swaggerModify) {
-            fs.writeFile(this.swaggerPath, JSON.stringify(this.swaggerDocument, null, 2)).then(() => {
-                console.log('Swagger document updated')
-
-            }).catch((err) => {
-                console.log('Error updating swagger document', err)
-            })
+            this.modifySwaggerDocument()
         }
+    }
+
+    private static modifySwaggerDocument() {
+        fs.writeFile(this.swaggerPath, JSON.stringify(this.swaggerDocument, null, 2), {
+            flag: 'w',
+        }).then(() => {
+            console.log('Swagger document updated')
+
+        }).catch((err) => {
+            console.log('Error updating swagger document', err)
+        })
     }
 
     private static exampleResponses() {
