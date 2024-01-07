@@ -4,8 +4,9 @@ import ResponseBuilder from '../../../utils/ResponseBuilder'
 import RequestBuilder from '../../../utils/RequestBuilder'
 import Joi from 'joi'
 import userService from '../services/user.service'
+import { IRegisterUser } from '../interfaces'
 
-class RegisterUserController extends MasterController<String, Number, Boolean> {
+class RegisterUserController extends MasterController<null, null, IRegisterUser> {
     static doc() {
         return {
             tags: ['User'],
@@ -28,8 +29,8 @@ class RegisterUserController extends MasterController<String, Number, Boolean> {
         return payload
     }
 
-    async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
-        const { name, email, password } = allData
+    async restController(params: null, query: null, body: IRegisterUser, headers: any, allData: any): Promise<any> {
+        const { name, email, password } = body
 
         const response = await userService.registerUser({ name, email, password })
 
