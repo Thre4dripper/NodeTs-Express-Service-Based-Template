@@ -1,5 +1,5 @@
 import { ILoginUser, IRegisterUser } from '../interfaces'
-import userRepository from '../repositories/user.repository'
+import userRepository from '../repositories/mongoose.user.repository'
 import { ValidationError } from '../../../handlers/CustomErrorHandler'
 import EncryptionUtil from '../../../utils/EncryptionUtil'
 
@@ -23,7 +23,7 @@ class UserService {
             throw new ValidationError('User does not exist')
         }
 
-        const isPasswordValid = await EncryptionUtil.comparePassword(data.password, user.password)
+        const isPasswordValid = await EncryptionUtil.comparePassword(data.password, user.password ?? '')
 
         if (!isPasswordValid) {
             throw new ValidationError('Invalid password')
