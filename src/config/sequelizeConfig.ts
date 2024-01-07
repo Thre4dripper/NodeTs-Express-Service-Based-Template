@@ -12,9 +12,9 @@ const sequelizeOptions: SequelizeOptions = {
     port: Number(process.env.DB_PORT),
     dialect: 'postgres',
     dialectOptions: {
-        ssl: false
+        ssl: false,
     },
-    models: [path.join(__dirname, '..', 'app', 'sequelize.models')],
+    models: [path.join(__dirname, '..', 'app', 'models')+ '/**/sequelize*.model.ts'],
     logging: console.log,
     operatorsAliases: {
         $eq: Op.eq,
@@ -76,8 +76,8 @@ const sequelizeOptions: SequelizeOptions = {
             /SequelizeInvalidConnectionError/,
             /SequelizeConnectionTimedOutError/,
         ],
-        max: 3
-    }
+        max: 3,
+    },
 }
 
 export const sequelize = new Sequelize(sequelizeOptions)

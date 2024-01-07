@@ -1,4 +1,4 @@
-import User from '../../../sequelize.models/sequelize.user.model'
+import User from '../../../models/sequelize.user.model'
 
 class UserRepository {
     async find(filter: {}) {
