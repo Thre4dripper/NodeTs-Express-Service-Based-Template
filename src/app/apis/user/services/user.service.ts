@@ -1,5 +1,5 @@
 import { ILoginUser, IRegisterUser } from '../interfaces'
-import userRepository from '../repositories/mongoose.user.repository'
+import userRepository from '../repositories/sequelize.user.repository'
 import { ValidationError } from '../../../handlers/CustomErrorHandler'
 import EncryptionUtil from '../../../utils/EncryptionUtil'
 

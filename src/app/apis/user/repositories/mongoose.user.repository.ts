@@ -1,4 +1,4 @@
-import User from '../../../models/mongoose.user.model'
+import User from '../../../mongoose.models/mongoose.user.model'
 
 class UserRepository {
     async find(filter: {}) {

@@ -2,7 +2,7 @@ import http from 'http'
 import serverConfig from './config/expressConfig'
 import { mongooseConnect } from './config/mongooseConfig'
 import * as process from 'process'
-// import { sequelizeConnect } from './config/sequelizeConfig'
+import { sequelizeConnect } from './config/sequelizeConfig'
 import SocketConfig from './config/socketConfig'
 
 require('dotenv').config()
@@ -23,12 +23,12 @@ const port = process.env.PORT || 3000
 
     // Connect to the database
     if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' || process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite') {
-        // try {
-        //     await sequelizeConnect()
-        // } catch (err) {
-        //     console.error('Unable to connect to the database:', err)
-        //     throw err
-        // }
+        try {
+            await sequelizeConnect()
+        } catch (err) {
+            console.error('Unable to connect to the database:', err)
+            throw err
+        }
     } else if (process.env.DB_DIALECT === 'mongodb') {
         try {
             await mongooseConnect()
