@@ -6,7 +6,7 @@ import Joi from 'joi'
 import userService from '../services/user.service'
 import { IRegisterUser } from '../interfaces'
 
-class RegisterUserController extends MasterController<null, null, IRegisterUser> {
+export default class RegisterUserController extends MasterController<null, null, IRegisterUser> {
     static doc() {
         return {
             tags: ['User'],
@@ -37,5 +37,3 @@ class RegisterUserController extends MasterController<null, null, IRegisterUser>
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully')
     }
 }
-
-export default RegisterUserController
