@@ -3,7 +3,7 @@ import { StatusCodes } from '../../../enums/StatusCodes'
 import ResponseBuilder from '../../../utils/ResponseBuilder'
 import RequestBuilder from '../../../utils/RequestBuilder'
 import Joi from 'joi'
-import { Server, Socket } from 'socket.io'
+import userService from '../services/user.service'
 
 class RegisterUserController extends MasterController<String, Number, Boolean> {
     static doc() {
@@ -20,35 +20,20 @@ class RegisterUserController extends MasterController<String, Number, Boolean> {
         payload.addToBody(
             Joi.object().keys({
                 name: Joi.string().required(),
-                lastName: Joi.string().required(),
                 email: Joi.string().email().required(),
                 password: Joi.string().min(8).max(20).required(),
             }),
         )
 
-        payload.addToQuery(
-            Joi.object().keys({
-                limit: Joi.number().required(),
-                offset: Joi.number().required(),
-            }),
-        )
-
-        payload.addToParams(
-            Joi.object().keys({
-                id: Joi.number().required(),
-            }),
-        )
         return payload
     }
 
     async restController(params: String, query: Number, body: Boolean, headers: any, allData: any): Promise<any> {
-        console.log(params, query, body)
-        return new ResponseBuilder(StatusCodes.SUCCESS, 'Success', 'AEgagaeg')
-    }
+        const { name, email, password } = allData
 
-    socketController(io: Server, socket: Socket, payload: any): any {
-        console.log(payload)
-        socket.emit('message', 'Hello from server')
+        const response = await userService.registerUser({ name, email, password })
+
+        return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully')
     }
 }
 
