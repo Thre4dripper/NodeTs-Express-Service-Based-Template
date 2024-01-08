@@ -19,8 +19,8 @@
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
 
-A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture,
-That can interact with MySQL, PostgresSQL, Sqlite, MariaDB, MSSql, DB2, Snowflake, Or acle, MongoDB.
+A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture
+that can interact with MySQL, PostgresSQL, Sqlite, MariaDB, MSSql, DB2, Snowflake, Oracle, MongoDB.
 Out-of-the-box validation, documentation generation, and
 more.
 
@@ -95,125 +95,124 @@ methods for efficient request handling, validation, and documentation generation
 
 ### Database Setup
 
-Additional dependencies are required for database operations. Install the appropriate dependencies for your database
-dialect.
-
-#### MySQL
-
-```bash
-$ npm install mysql2
-```
-
-#### PostgreSQL
-
-```bash
-$ npm install pg pg-hstore
-```
-
-#### Sqlite
-
-```bash
-$ npm install sqlite3
-```
-
-#### MariaDB
-
-```bash
-$ npm install mariadb
-```
-
-#### MSSql
-
-```bash
-$ npm install tedious or mssql
-```
-
-#### DB2
-
-```bash
-$ npm install ibm_db
-```
-
-#### Snowflake
-
-```bash
-$ npm install snowflake-sdk
-```
-
-#### Oracle
-
-```bash
-$ npm install oracledb
-```
-
-#### MongoDB
-
-```bash
-$ npm install mongoose
-```
+> Additional dependencies are required for database operations. Install the appropriate dependencies for your database
+> dialect.
+>
+> #### MySQL
+>
+> ```bash
+> $ npm install mysql2
+> ```
+>
+> #### PostgreSQL
+>
+> ```bash
+> $ npm install pg pg-hstore
+> ```
+>
+> #### Sqlite
+>
+> ```bash
+> $ npm install sqlite3
+> ```
+>
+> #### MariaDB
+>
+> ```bash
+> $ npm install mariadb
+> ```
+>
+> #### MSSql
+>
+> ```bash
+> $ npm install tedious or mssql
+> ```
+>
+> #### DB2
+>
+> ```bash
+> $ npm install ibm_db
+> ```
+>
+> #### Snowflake
+>
+> ```bash
+> $ npm install snowflake-sdk
+> ```
+>
+> #### Oracle
+>
+> ```bash
+> $ npm install oracledb
+> ```
+>
+> #### MongoDB
+>
+> ```bash
+> $ npm install mongoose
+> ```
 
 ### Docker
 
-#### Docker Environment variables
-
-- `PORT` - Port number for the server to run on.
-- `DB_DIALECT` - Database dialect to use.
-  (Options: mysql, postgres, mariadb, sqlite, mssql, mongodb)
-- `DB_HOST` - Database host.
-- `DB_PORT` - Database port.
-- `DB_USER` - Database username.
-- `DB_PASS` - Database password.
-- `DB_NAME` - Database name.
-- `MONGO_URI` - MongoDB URI (Only for MongoDB Dialect).
-- `JWT_SECRET` - Secret key for JWT.
-
-#### Build the image
-
-```bash
-$ docker build -t <image-name> .
-```
-
-#### Run the container
-
-```bash
-$ docker run -e <env-variable>=<value> -p <port>:<port> <image-name>
-```
-
-#### Run the container in background
-
-```bash
-$ docker run -d -e <env-variable>=<value> -p <port>:<port> <image-name>
-```
-
-#### Stop the container
-
-```bash
-$ docker stop <container-id>
-```
-
-#### Remove the container
-
-```bash
-$ docker rm <container-id>
-```
-
-#### Remove the image
-
-```bash
-$ docker rmi <image-name>
-```
-
-#### List all containers
-
-```bash
-$ docker ps -a
-```
-
-#### List all running containers
-
-```bash
-$ docker ps
-```
+> #### Docker Environment variables
+>
+> - `PORT` - Port number for the server to run on.
+> - `DB_DIALECT` - Database dialect to use. (Options: mysql, postgres, mariadb, sqlite, mssql, mongodb)
+> - `DB_HOST` - Database host.
+> - `DB_PORT` - Database port.
+> - `DB_USER` - Database username.
+> - `DB_PASS` - Database password.
+> - `DB_NAME` - Database name.
+> - `MONGO_URI` - MongoDB URI (Only for MongoDB Dialect).
+> - `JWT_SECRET` - Secret key for JWT.
+>
+> #### Build the image
+>
+> ```bash
+> $ docker build -t <image-name> .
+> ```
+>
+> #### Run the container
+>
+> ```bash
+> $ docker run -e <env-variable>=<value> -p <port>:<port> <image-name>
+> ```
+>
+> #### Run the container in the background
+>
+> ```bash
+> $ docker run -d -e <env-variable>=<value> -p <port>:<port> <image-name>
+> ```
+>
+> #### Stop the container
+>
+> ```bash
+> $ docker stop <container-id>
+> ```
+>
+> #### Remove the container
+>
+> ```bash
+> $ docker rm <container-id>
+> ```
+>
+> #### Remove the image
+>
+> ```bash
+> $ docker rmi <image-name>
+> ```
+>
+> #### List all containers
+>
+> ```bash
+> $ docker ps -a
+> ```
+>
+> #### List all running containers
+>
+> ```bash
+> $ docker ps
+> ```
 
 ### Contributing
 
