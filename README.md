@@ -6,9 +6,12 @@
 ![Sequelize](https://img.shields.io/badge/-Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white)
 ![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white)
 ![PostgresSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=PostgreSQL&logoColor=white)
-![MariaDB](https://img.shields.io/badge/-MariaDB-003545?style=flat-square&logo=MariaDB&logoColor=white)
 ![Sqlite](https://img.shields.io/badge/-Sqlite-003B57?style=flat-square&logo=Sqlite&logoColor=white)
+![MariaDB](https://img.shields.io/badge/-MariaDB-003545?style=flat-square&logo=MariaDB&logoColor=white)
 ![MSSql](https://img.shields.io/badge/-MSSql-CC2927?style=flat-square&logo=Microsoft-SQL-Server&logoColor=white)
+![DB2](https://img.shields.io/badge/-DB2-CC0000?style=flat-square&logo=IBM&logoColor=white)
+![Snowflake](https://img.shields.io/badge/-Snowflake-00BFFF?style=flat-square&logo=Snowflake&logoColor=white)
+![Oracle](https://img.shields.io/badge/-Oracle-F80000?style=flat-square&logo=Oracle&logoColor=white)
 ![Mongoose](https://img.shields.io/badge/-Mongoose-880000?style=flat-square&logo=Mongoose&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat-square&logo=MongoDB&logoColor=white)
 ![Validations](https://img.shields.io/badge/-Validations-FF0000?style=flat-square)
@@ -17,7 +20,7 @@
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
 
 A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture,
-That can interact with MySQL, PostgresSQL, MariaDB, Sqlite, MSSql, MongoDB.
+That can interact with MySQL, PostgresSQL, Sqlite, MariaDB, MSSql, DB2, Snowflake, Or acle, MongoDB.
 Out-of-the-box validation, documentation generation, and
 more.
 
@@ -68,7 +71,7 @@ methods for efficient request handling, validation, and documentation generation
 > $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
 
-### Setup
+### Server Setup
 
 > Install dependencies
 > ```bash
@@ -89,6 +92,65 @@ methods for efficient request handling, validation, and documentation generation
 > ```bash
 > $ npm run start or yarn start
 > ```
+
+### Database Setup
+
+Additional dependencies are required for database operations. Install the appropriate dependencies for your database
+dialect.
+
+#### MySQL
+
+```bash
+$ npm install mysql2
+```
+
+#### PostgreSQL
+
+```bash
+$ npm install pg pg-hstore
+```
+
+#### Sqlite
+
+```bash
+$ npm install sqlite3
+```
+
+#### MariaDB
+
+```bash
+$ npm install mariadb
+```
+
+#### MSSql
+
+```bash
+$ npm install tedious or mssql
+```
+
+#### DB2
+
+```bash
+$ npm install ibm_db
+```
+
+#### Snowflake
+
+```bash
+$ npm install snowflake-sdk
+```
+
+#### Oracle
+
+```bash
+$ npm install oracledb
+```
+
+#### MongoDB
+
+```bash
+$ npm install mongoose
+```
 
 ### Docker
 
