@@ -16,20 +16,32 @@ const port = process.env.PORT || 3000
         throw new Error('DB_DIALECT not found in .env file')
     }
 
-    // checking if the dialect is valid
-    if (process.env.DB_DIALECT !== 'postgres' && process.env.DB_DIALECT !== 'mysql' && process.env.DB_DIALECT !== 'mariadb' && process.env.DB_DIALECT !== 'sqlite' && process.env.DB_DIALECT !== 'mongodb') {
+    // start if dialect valid
+    if (process.env.DB_DIALECT !== 'postgres' && process.env.DB_DIALECT !== 'mysql' &&
+        process.env.DB_DIALECT !== 'mariadb' && process.env.DB_DIALECT !== 'sqlite' &&
+        process.env.DB_DIALECT !== 'mssql' && process.env.DB_DIALECT !== 'db2' &&
+        process.env.DB_DIALECT !== 'snowflake' && process.env.DB_DIALECT !== 'oracle' &&
+        process.env.DB_DIALECT !== 'mongodb') {
         throw new Error('DB_DIALECT must be either postgres, mysql, mariadb, sqlite or mongodb')
     }
+    // end if dialect valid
 
     // Connect to the database
-    if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' || process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite') {
+    // start if sequelize dialect check
+    if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' ||
+        process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite' ||
+        process.env.DB_DIALECT === 'mssql' || process.env.DB_DIALECT === 'db2' ||
+        process.env.DB_DIALECT === 'snowflake' || process.env.DB_DIALECT === 'oracle') {
         try {
             await sequelizeConnect()
         } catch (err) {
             console.error('Unable to connect to the database:', err)
             throw err
         }
-    } else if (process.env.DB_DIALECT === 'mongodb') {
+    }
+        // end if sequelize dialect check
+    // start if mongoose dialect check
+    else if (process.env.DB_DIALECT === 'mongodb') {
         try {
             await mongooseConnect()
         } catch (err) {
@@ -37,6 +49,7 @@ const port = process.env.PORT || 3000
             throw err
         }
     }
+    // end if mongoose dialect check
     // Create an HTTP server instance
     const httpServer = http.createServer(app)
 
