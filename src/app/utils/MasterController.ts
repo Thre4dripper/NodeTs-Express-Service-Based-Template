@@ -29,6 +29,7 @@ interface ISocketClient {
  * to write the controller logic for the route or socket event respectively
  */
 class MasterController<P, Q, B> {
+    // start socket requests snippet
     private static socketRequests: ISocketClient[] = []
 
     /**
@@ -40,6 +41,8 @@ class MasterController<P, Q, B> {
     static getSocketRequests(): ISocketClient[] {
         return this.socketRequests
     }
+
+    // end socket requests snippet
 
     /**
      * @method MasterController.doc
