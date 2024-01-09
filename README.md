@@ -113,7 +113,7 @@ methods for efficient request handling, validation, and documentation generation
 > #### Sqlite
 >
 > ```bash
-> $ npm install sqlite3
+> $ npm install sqlite
 > ```
 >
 > #### MariaDB

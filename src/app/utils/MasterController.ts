@@ -289,6 +289,19 @@ class MasterController<P, Q, B> {
     }
 
     /**
+     * @method MasterController.patch
+     * @description Registers a PATCH route for the controller class.
+     * @param {Router} router - Router object.
+     * @param {string} path - Path for the route.
+     * @param {RequestHandler[]} middlewares - Middlewares for the route.
+     * @returns {Router} Router object with the registered PATCH route.
+     */
+    static patch(router: Router, path: string, middlewares: RequestHandler[]): Router {
+        SwaggerConfig.recordApi(path, SwaggerMethod.PATCH, this)
+        return router.patch(path, middlewares, this.handler())
+    }
+
+    /**
      * @method MasterController.socketIO
      * @description Registers a socket event for the controller class.
      * @param {string} event - Event name.

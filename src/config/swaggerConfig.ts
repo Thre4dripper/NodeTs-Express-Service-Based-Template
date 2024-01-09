@@ -8,6 +8,7 @@ export enum SwaggerMethod {
     POST = 'post',
     PUT = 'put',
     DELETE = 'delete',
+    PATCH = 'patch',
 }
 
 interface Schema {
@@ -49,6 +50,7 @@ interface Path {
     post?: Method;
     put?: Method;
     delete?: Method;
+    patch?: Method;
 }
 
 interface Paths {
