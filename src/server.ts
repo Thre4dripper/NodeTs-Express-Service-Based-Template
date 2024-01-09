@@ -53,12 +53,13 @@ const port = process.env.PORT || 3000
     // Create an HTTP server instance
     const httpServer = http.createServer(app)
 
-    // Integrate Socket.IO with the HTTP server
+    // Initialize Socket.IO with the HTTP server
     const io = SocketConfig.init(httpServer)
 
     io.on('connection', (socket) => {
         SocketConfig.socketListener(io, socket)
     })
+    // End Initialize Socket.IO
 
     // Start listening for HTTP requests
     httpServer.listen(port, () => {
