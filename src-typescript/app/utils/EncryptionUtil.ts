@@ -14,9 +14,8 @@ export default class EncryptionUtil {
 
     static generateJwtTokens(data: any): IAccessToken {
         return {
-            //TODO change to 2days
             accessToken: jwt.sign(data, process.env.JWT_SECRET!, {
-                expiresIn: '10 days',
+                expiresIn: '2 days',
             }),
             refreshToken: jwt.sign(data, process.env.JWT_SECRET!, {
                 expiresIn: '10 days',

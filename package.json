@@ -4,10 +4,12 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon src/server.ts",
-    "build": "tsc && copyfiles -u 1 \"./src/**/*.{css,html,ico,png,svg}\" dist/src/",
-    "start": "ts-node src/server.ts",
-    "preview": "node dist/src/server.js"
+    "dev-ts": "nodemon src-typescript/server.ts",
+    "dev-js": "nodemon src-javascript/server.js",
+    "build": "tsc && copyfiles -u 1 \"src-typescript/**/*.{css,html,ico,png,svg}\" dist/src/",
+    "start-ts": "ts-node src-typescript/server.ts",
+    "start-js": "node src-javascript/server.js",
+    "preview": "node dist/src-ts/server.js"
   },
   "author": "Ijlal Ahmad",
   "license": "ISC",

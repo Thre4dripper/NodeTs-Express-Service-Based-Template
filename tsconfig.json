@@ -32,7 +32,7 @@
     /* Specify the root folder within your source files. */
     "moduleResolution": "node",
     /* Specify how TypeScript looks up a file from a given module specifier. */
-    "baseUrl": "./src",
+    "baseUrl": "./src-typescript",
     /* Specify the base directory to resolve non-relative module names. */
     "paths": {
       "*": [
