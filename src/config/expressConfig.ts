@@ -5,8 +5,10 @@ import joiErrorHandler from '../app/handlers/JoiErrorHandler'
 import customErrorHandler from '../app/handlers/CustomErrorHandler'
 import * as fs from 'fs/promises'
 import * as path from 'path'
+// start swagger import
 import swaggerUI from 'swagger-ui-express'
 import SwaggerConfig from './swaggerConfig'
+// end swagger import
 
 const server = async () => {
     const app = express()
@@ -84,10 +86,12 @@ const server = async () => {
             }
         }
     }
+    // start swagger config
     SwaggerConfig.initSwagger({
         path: path.join(__dirname, '../../swagger.json'),
-        modify: false
+        modify: false,
     })
+    // end swagger config
     await loadRouters(path.join(__dirname, '../app/routes'))
     app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()))
     app.use(
