@@ -17,21 +17,30 @@ const port = process.env.PORT || 3000
     }
 
     // start if dialect valid
-    if (process.env.DB_DIALECT !== 'postgres' && process.env.DB_DIALECT !== 'mysql' &&
-        process.env.DB_DIALECT !== 'mariadb' && process.env.DB_DIALECT !== 'sqlite' &&
-        process.env.DB_DIALECT !== 'mssql' && process.env.DB_DIALECT !== 'db2' &&
-        process.env.DB_DIALECT !== 'snowflake' && process.env.DB_DIALECT !== 'oracle' &&
-        process.env.DB_DIALECT !== 'mongodb') {
+    if (
+        ![
+            'postgres',
+            'mysql',
+            'mariadb',
+            'sqlite',
+            'mssql',
+            'db2',
+            'snowflake',
+            'oracle',
+            'mongodb',
+        ].includes(process.env.DB_DIALECT)
+    ) {
         throw new Error('DB_DIALECT must be either postgres, mysql, mariadb, sqlite or mongodb')
     }
     // end if dialect valid
 
     // Connect to the database
     // start if sequelize dialect check
-    if (process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' ||
-        process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite' ||
-        process.env.DB_DIALECT === 'mssql' || process.env.DB_DIALECT === 'db2' ||
-        process.env.DB_DIALECT === 'snowflake' || process.env.DB_DIALECT === 'oracle') {
+    if (
+        ['postgres', 'mysql', 'mariadb', 'sqlite', 'mssql', 'db2', 'snowflake', 'oracle'].includes(
+            process.env.DB_DIALECT
+        )
+    ) {
         try {
             await sequelizeConnect()
         } catch (err) {
@@ -39,7 +48,7 @@ const port = process.env.PORT || 3000
             throw err
         }
     }
-        // end if sequelize dialect check
+    // end if sequelize dialect check
     // start if mongoose dialect check
     else if (process.env.DB_DIALECT === 'mongodb') {
         try {
