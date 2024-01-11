@@ -1,7 +1,9 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
+// swagger import
 import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
+// socket import
 import { Server, Socket } from 'socket.io'
 
 interface IJoiErrors {

@@ -1,10 +1,15 @@
 const http = require('http')
 const serverConfig = require('./config/expressConfig')
-const { mongooseConnect } = require('./config/mongooseConfig')
 const process = require('process')
+// mongoose import
+const { mongooseConnect } = require('./config/mongooseConfig')
+// sequelize import
 const { sequelizeConnect } = require('./config/sequelizeConfig')
+// socket import
 const SocketConfig = require('./config/socketConfig')
+
 require('dotenv').config()
+
 const port = process.env.PORT || 3000;
 
 (async () => {

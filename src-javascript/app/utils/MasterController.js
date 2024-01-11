@@ -1,5 +1,6 @@
 const { default: RequestBuilder, PayloadType } = require('./RequestBuilder')
 const asyncHandler = require('./AsyncHandler')
+// swagger import
 const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig')
 
 /**
