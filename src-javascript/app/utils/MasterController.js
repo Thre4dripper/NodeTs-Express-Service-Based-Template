@@ -1,9 +1,6 @@
 const { default: RequestBuilder, PayloadType } = require('./RequestBuilder')
 const asyncHandler = require('./AsyncHandler')
-// start swagger import
 const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig')
-
-// end swagger import
 
 /**
  * @class MasterController

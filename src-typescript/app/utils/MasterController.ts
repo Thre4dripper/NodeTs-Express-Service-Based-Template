@@ -1,14 +1,8 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
-// start swagger import
 import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
-// end swagger import
-
-// start socket import
 import { Server, Socket } from 'socket.io'
-
-// end socket import
 
 interface IJoiErrors {
     query?: string[]
