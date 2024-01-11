@@ -1,12 +1,17 @@
 import http from 'http'
 import serverConfig from './config/expressConfig'
 import * as process from 'process'
-// mongoose import
+// start mongoose import
 import { mongooseConnect } from './config/mongooseConfig'
-// sequelize import
+// end mongoose import
+
+// start sequelize import
 import { sequelizeConnect } from './config/sequelizeConfig'
-// socket import
+// end sequelize import
+
+// start socket import
 import SocketConfig from './config/socketConfig'
+// end socket import
 
 require('dotenv').config()
 
