@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
         throw new Error('DB_DIALECT not found in .env file')
     }
 
-    // Start if dialect valid
+    // start if dialect valid
     if (
         process.env.DB_DIALECT !== 'postgres' && process.env.DB_DIALECT !== 'mysql' &&
         process.env.DB_DIALECT !== 'mariadb' && process.env.DB_DIALECT !== 'sqlite' &&
@@ -35,10 +35,10 @@ const port = process.env.PORT || 3000;
     ) {
         throw new Error('DB_DIALECT must be either postgres, mysql, mariadb, sqlite or mongodb')
     }
-    // End if dialect valid
+    // end if dialect valid
 
     // Connect to the database
-    // Start if sequelize dialect check
+    // start if sequelize dialect check
     if (
         process.env.DB_DIALECT === 'postgres' || process.env.DB_DIALECT === 'mysql' ||
         process.env.DB_DIALECT === 'mariadb' || process.env.DB_DIALECT === 'sqlite' ||
@@ -52,9 +52,9 @@ const port = process.env.PORT || 3000;
             throw err
         }
     }
-        // End if sequelize dialect check
+        // end if sequelize dialect check
 
-    // Start if mongoose dialect check
+    // start if mongoose dialect check
     else if (process.env.DB_DIALECT === 'mongodb') {
         try {
             await mongooseConnect()
@@ -63,7 +63,7 @@ const port = process.env.PORT || 3000;
             throw err
         }
     }
-    // End if mongoose dialect check
+    // end if mongoose dialect check
 
     // Create an HTTP server instance
     const httpServer = http.createServer(app)
