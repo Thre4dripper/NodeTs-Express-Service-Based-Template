@@ -6,7 +6,7 @@ const mongooseOptions = {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
-    ssl: false,
+    ssl: true,
 }
 
 const mongooseConnect = async () => {
