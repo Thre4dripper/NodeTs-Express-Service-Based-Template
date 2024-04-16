@@ -9,7 +9,7 @@
     "build": "tsc && copyfiles -u 1 \"src-typescript/**/*.{css,html,ico,png,svg}\" dist/src/",
     "start-ts": "ts-node src-typescript/server.ts",
     "start-js": "node src-javascript/server.js",
-    "preview": "node dist/src-typescript/server.js"
+    "preview": "node dist/server.js"
   },
   "author": "Ijlal Ahmad",
   "license": "ISC",
