@@ -11,75 +11,81 @@ export enum SwaggerMethod {
     PATCH = 'patch',
 }
 
+export interface ISwaggerDoc {
+    tags: string[]
+    summary: string
+    description: string
+}
+
 interface Schema {
-    type?: string;
-    required?: string[];
-    properties?: { [property: string]: Schema };
-    format?: string;
-    minimum?: number;
-    example?: any;
-    additionalProperties?: boolean | Schema;
+    type?: string
+    required?: string[]
+    properties?: { [property: string]: Schema }
+    format?: string
+    minimum?: number
+    example?: any
+    additionalProperties?: boolean | Schema
 }
 
 interface Parameter {
-    name: string;
-    in: string;
-    required: boolean;
-    type?: string;
-    format?: string;
-    schema?: Schema;
+    name: string
+    in: string
+    required: boolean
+    type?: string
+    format?: string
+    schema?: Schema
 }
 
 interface Response {
-    description: string;
-    schema?: Schema;
+    description: string
+    schema?: Schema
 }
 
 interface Method {
-    tags: string[];
-    summary: string;
-    description: string;
-    operationId?: string;
-    produces: string[];
-    parameters?: Parameter[];
-    responses: { [responseCode: string]: Response };
+    tags: string[]
+    summary: string
+    description: string
+    operationId?: string
+    produces: string[]
+    parameters?: Parameter[]
+    responses: { [responseCode: string]: Response }
 }
 
 interface Path {
-    get?: Method;
-    post?: Method;
-    put?: Method;
-    delete?: Method;
-    patch?: Method;
+    get?: Method
+    post?: Method
+    put?: Method
+    delete?: Method
+    patch?: Method
 }
 
 interface Paths {
-    [path: string]: Path;
+    [path: string]: Path
 }
 
 interface SecurityDefinition {
-    type: string;
-    name: string;
-    in: string;
+    type: string
+    name: string
+    in: string
 }
 
 interface SwaggerDocument {
-    swagger: string;
+    swagger: string
     info: {
-        version: string;
-        title: string;
-        description: string;
-    };
-    schemes: string[];
-    consumes: string[];
-    produces: string[];
-    securityDefinitions: { [securityDefinition: string]: SecurityDefinition };
-    paths: Paths;
+        version: string
+        title: string
+        description: string
+    }
+    schemes: string[]
+    consumes: string[]
+    produces: string[]
+    securityDefinitions: { [securityDefinition: string]: SecurityDefinition }
+    paths: Paths
 }
 
 interface SwaggerConfigOptions {
-    path: string;
-    modify?: Boolean;
+    path: string
+    modify?: Boolean
 }
 
 class SwaggerConfig {
@@ -174,6 +180,9 @@ class SwaggerConfig {
     }
 
     static recordApi(path: string, method: SwaggerMethod, currentRef: typeof MasterController) {
+        if (currentRef.doc() === false) {
+            return
+        }
         const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '')
         const parameters = this.swaggerDocsFromJoiSchema(currentRef.validate())
         const paths: Paths = this.swaggerDocument.paths
@@ -187,9 +196,9 @@ class SwaggerConfig {
         }
 
         methodObj.parameters = parameters
-        methodObj.tags = currentRef.doc().tags
-        methodObj.summary = currentRef.doc().summary
-        methodObj.description = currentRef.doc().description
+        methodObj.tags = (currentRef.doc() as ISwaggerDoc).tags
+        methodObj.summary = (currentRef.doc() as ISwaggerDoc).summary
+        methodObj.description = (currentRef.doc() as ISwaggerDoc).description
         methodObj.operationId = currentRef.name
         pathObj[method] = methodObj
         paths[key] = pathObj
@@ -203,12 +212,13 @@ class SwaggerConfig {
     private static modifySwaggerDocument() {
         fs.writeFile(this.swaggerPath, JSON.stringify(this.swaggerDocument, null, 2), {
             flag: 'w',
-        }).then(() => {
-            console.log('Swagger document updated')
-
-        }).catch((err) => {
-            console.log('Error updating swagger document', err)
         })
+            .then(() => {
+                console.log('Swagger document updated')
+            })
+            .catch((err) => {
+                console.log('Error updating swagger document', err)
+            })
     }
 
     private static exampleResponses() {

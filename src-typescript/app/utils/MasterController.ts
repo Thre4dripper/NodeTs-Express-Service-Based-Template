@@ -1,19 +1,13 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder'
 import { Request, RequestHandler, Response, Router } from 'express'
 import asyncHandler from './AsyncHandler'
-import SwaggerConfig, { SwaggerMethod } from '../../config/swaggerConfig'
+import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig'
 import { Server, Socket } from 'socket.io'
 
 interface IJoiErrors {
     query?: string[]
     param?: string[]
     body?: string[]
-}
-
-interface ISwaggerDoc {
-    tags: string[]
-    summary: string
-    description: string
 }
 
 interface ISocketClient {
@@ -56,14 +50,13 @@ class MasterController<P, Q, B> {
      * }
      * @returns {Object} swagger doc for a controller class {@link ISwaggerDoc}
      */
-    static doc(): ISwaggerDoc {
+    static doc(): ISwaggerDoc | boolean {
         return {
             tags: [],
             summary: '',
             description: '',
         }
     }
-
 
     /**
      * @method MasterController.validate
@@ -98,7 +91,6 @@ class MasterController<P, Q, B> {
         return new RequestBuilder()
     }
 
-
     /**
      * @method MasterController.restController
      * @description Handles the controller logic after validating the request payload.
@@ -127,7 +119,6 @@ class MasterController<P, Q, B> {
         // Logic for handling socket events goes here
     }
 
-
     /**
      * @method MasterController.joiValidator
      * @description Validates the request payload based on provided validation rules.
@@ -140,7 +131,12 @@ class MasterController<P, Q, B> {
      * @returns {IJoiErrors | null} Returns an object containing any validation errors found, or null
      * if there are no errors.
      */
-    private static joiValidator(params: any, query: any, body: any, validationRules: RequestBuilder): IJoiErrors | null {
+    private static joiValidator(
+        params: any,
+        query: any,
+        body: any,
+        validationRules: RequestBuilder
+    ): IJoiErrors | null {
         // Check if there are no validation rules, return null (no validation needed)
         if (validationRules.get.length === 0) {
             return null
@@ -183,16 +179,12 @@ class MasterController<P, Q, B> {
         })
 
         // Remove empty arrays from joiErrors
-        if (joiErrors.query?.length === 0)
-            delete joiErrors.query
-        if (joiErrors.param?.length === 0)
-            delete joiErrors.param
-        if (joiErrors.body?.length === 0)
-            delete joiErrors.body
+        if (joiErrors.query?.length === 0) delete joiErrors.query
+        if (joiErrors.param?.length === 0) delete joiErrors.param
+        if (joiErrors.body?.length === 0) delete joiErrors.body
 
         // Return null if no errors, i.e. all arrays are removed above
-        if (Object.keys(joiErrors).length === 0)
-            return null
+        if (Object.keys(joiErrors).length === 0) return null
 
         return joiErrors
     }
@@ -232,7 +224,13 @@ class MasterController<P, Q, B> {
             }
 
             // Invoke the 'restController' method to handle the request and get the response
-            const { response } = await controller.restController(req.params, req.query, req.body, req.headers, allData)
+            const { response } = await controller.restController(
+                req.params,
+                req.query,
+                req.body,
+                req.headers,
+                allData
+            )
 
             // Respond with the status and data from 'restController' method
             res.status(response.status).json(response)
