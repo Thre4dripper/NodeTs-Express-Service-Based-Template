@@ -1,10 +1,4 @@
 {
-  "ignore": [
-    "/node_modules/**",
-    "/.git/**",
-    "/dist/**"
-  ],
-  "verbose": true,
-  "ext": "ts,js,html,json,yml,css",
+  "extends": "./nodemon-ts.json",
   "exec": "yarn build && yarn lint && node --harmony dist/server.js"
 }
