@@ -1,0 +1,10 @@
+{
+  "ignore": [
+    "/node_modules/**",
+    "/.git/**",
+    "/dist/**"
+  ],
+  "verbose": true,
+  "ext": "ts,js,html,json,yml,css",
+  "exec": "yarn lint && node src-javascript/server.js"
+}
