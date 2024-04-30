@@ -1,11 +1,11 @@
 module.exports = class ResponseBuilder {
-    response
+    response;
 
     constructor(status, data, message) {
         this.response = {
             status,
             data,
             message,
-        }
+        };
     }
-}
+};

@@ -1,8 +1,8 @@
-import * as path from 'path'
+import * as path from 'path';
 
-require('dotenv').config()
-import { Op } from 'sequelize'
-import { Sequelize, SequelizeOptions } from 'sequelize-typescript'
+require('dotenv').config();
+import { Op } from 'sequelize';
+import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 
 const sequelizeOptions: SequelizeOptions = {
     database: process.env.DB_NAME,
@@ -14,7 +14,7 @@ const sequelizeOptions: SequelizeOptions = {
     dialectOptions: {
         ssl: false,
     },
-    models: [path.join(__dirname, '..', 'app', 'models')+ '/**/sequelize*.model.ts'],
+    models: [path.join(__dirname, '..', 'app', 'models') + '/**/sequelize*.model.ts'],
     logging: console.log,
     operatorsAliases: {
         $eq: Op.eq,
@@ -78,18 +78,18 @@ const sequelizeOptions: SequelizeOptions = {
         ],
         max: 3,
     },
-}
+};
 
-export const sequelize = new Sequelize(sequelizeOptions)
+export const sequelize = new Sequelize(sequelizeOptions);
 
 export const sequelizeConnect = async () => {
     try {
-        await sequelize.authenticate()
-        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.')
-        await sequelize.sync({ alter: false })
-        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.')
+        await sequelize.authenticate();
+        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.');
+        await sequelize.sync({ alter: false });
+        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.');
     } catch (err) {
-        console.error('Unable to connect to the database:', err)
-        throw err
+        console.error('Unable to connect to the database:', err);
+        throw err;
     }
-}
+};

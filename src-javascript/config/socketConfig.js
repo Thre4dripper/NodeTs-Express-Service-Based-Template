@@ -1,6 +1,6 @@
-const { Server } = require('socket.io')
-const MasterController = require('../app/utils/MasterController')
-const asyncHandler = require('../app/utils/AsyncHandler')
+const { Server } = require('socket.io');
+const MasterController = require('../app/utils/MasterController');
+const asyncHandler = require('../app/utils/AsyncHandler');
 
 class SocketConfig {
     /**
@@ -14,7 +14,7 @@ class SocketConfig {
                 origin: '*',
                 methods: ['GET', 'POST'],
             },
-        })
+        });
     }
 
     /**
@@ -23,16 +23,16 @@ class SocketConfig {
      * @param socket socket instance
      */
     static socketListener(io, socket) {
-        console.log('New client connected')
+        console.log('New client connected');
         socket.on('disconnect', () => {
-            console.log('Client disconnected')
-        })
+            console.log('Client disconnected');
+        });
         MasterController.getSocketRequests().forEach((client) => {
             socket.on(client.event, (payload) => {
-                asyncHandler(client.masterController.socketController(io, socket, payload))
-            })
-        })
+                asyncHandler(client.masterController.socketController(io, socket, payload));
+            });
+        });
     }
 }
 
-module.exports = SocketConfig
+module.exports = SocketConfig;

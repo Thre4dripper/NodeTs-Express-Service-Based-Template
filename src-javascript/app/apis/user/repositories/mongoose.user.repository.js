@@ -1,13 +1,13 @@
-const User = require('../../../models/mongoose.user.model')
+const User = require('../../../models/mongoose.user.model');
 
 class UserRepository {
     async find(filter) {
-        return User.findOne(filter).exec()
+        return User.findOne(filter).exec();
     }
 
     async create(data) {
-        return User.create(data)
+        return User.create(data);
     }
 }
 
-module.exports = new UserRepository()
+module.exports = new UserRepository();

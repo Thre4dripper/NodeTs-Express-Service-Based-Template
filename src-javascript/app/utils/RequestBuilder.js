@@ -2,29 +2,29 @@ const PayloadType = {
     PARAMS: 0,
     QUERY: 1,
     BODY: 2,
-}
+};
 
 class RequestBuilder {
     constructor() {
-        this.payload = []
+        this.payload = [];
     }
 
     addToParams(payload) {
-        this.payload.push({ type: PayloadType.PARAMS, schema: payload })
+        this.payload.push({ type: PayloadType.PARAMS, schema: payload });
     }
 
     addToQuery(payload) {
-        this.payload.push({ type: PayloadType.QUERY, schema: payload })
+        this.payload.push({ type: PayloadType.QUERY, schema: payload });
     }
 
     addToBody(payload) {
-        this.payload.push({ type: PayloadType.BODY, schema: payload })
+        this.payload.push({ type: PayloadType.BODY, schema: payload });
     }
 
     get get() {
-        return this.payload
+        return this.payload;
     }
 }
 
-module.exports.PayloadType = PayloadType
-module.exports.default = RequestBuilder
+module.exports.PayloadType = PayloadType;
+module.exports.default = RequestBuilder;

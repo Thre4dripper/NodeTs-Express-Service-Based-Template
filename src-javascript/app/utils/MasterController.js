@@ -1,6 +1,6 @@
-const { default: RequestBuilder, PayloadType } = require('./RequestBuilder')
-const asyncHandler = require('./AsyncHandler')
-const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig')
+const { default: RequestBuilder, PayloadType } = require('./RequestBuilder');
+const asyncHandler = require('./AsyncHandler');
+const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig');
 
 /**
  * @class MasterController
@@ -11,7 +11,7 @@ const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerC
  */
 class MasterController {
     // start socket requests snippet
-    static socketRequests = []
+    static socketRequests = [];
 
     /**
      * @method MasterController.getSocketRequests
@@ -20,7 +20,7 @@ class MasterController {
      * @returns {ISocketClient[]} - Returns an array of ISocketClient objects, each representing a socket request instance
      */
     static getSocketRequests() {
-        return this.socketRequests
+        return this.socketRequests;
     }
 
     // end socket requests snippet
@@ -41,7 +41,7 @@ class MasterController {
             tags: [],
             summary: '',
             description: '',
-        }
+        };
     }
 
     /**
@@ -74,7 +74,7 @@ class MasterController {
      * return payloadValidator;
      */
     static validate() {
-        return new RequestBuilder()
+        return new RequestBuilder();
     }
 
     /**
@@ -120,53 +120,52 @@ class MasterController {
     static joiValidator(params, query, body, validationRules) {
         // Check if there are no validation rules, return null (no validation needed)
         if (validationRules.get.length === 0) {
-            return null
+            return null;
         }
         // Object to store validation errors
         const joiErrors = {
             query: [],
             param: [],
             body: [],
-        }
+        };
         // Loop through each payload type and validate the corresponding data
         validationRules.payload.forEach((payload) => {
             if (payload.type === PayloadType.PARAMS) {
                 // Validate params based on schema
-                const schema = payload.schema
-                const { error } = schema.validate(params, { abortEarly: false, allowUnknown: true })
+                const schema = payload.schema;
+                const { error } = schema.validate(params, {
+                    abortEarly: false,
+                    allowUnknown: true,
+                });
                 if (error) {
                     // Push validation error messages to the respective array
-                    joiErrors.param?.push(...error.details.map((err) => err.message))
+                    joiErrors.param?.push(...error.details.map((err) => err.message));
                 }
             } else if (payload.type === PayloadType.QUERY) {
                 // Validate query based on schema
-                const schema = payload.schema
-                const { error } = schema.validate(query, { abortEarly: false, allowUnknown: true })
+                const schema = payload.schema;
+                const { error } = schema.validate(query, { abortEarly: false, allowUnknown: true });
                 if (error) {
                     // Push validation error messages to the respective array
-                    joiErrors.query?.push(...error.details.map((err) => err.message))
+                    joiErrors.query?.push(...error.details.map((err) => err.message));
                 }
             } else if (payload.type === PayloadType.BODY) {
                 // Validate body based on schema
-                const schema = payload.schema
-                const { error } = schema.validate(body, { abortEarly: false, allowUnknown: true })
+                const schema = payload.schema;
+                const { error } = schema.validate(body, { abortEarly: false, allowUnknown: true });
                 if (error) {
                     // Push validation error messages to the respective array
-                    joiErrors.body?.push(...error.details.map((err) => err.message))
+                    joiErrors.body?.push(...error.details.map((err) => err.message));
                 }
             }
-        })
+        });
         // Remove empty arrays from joiErrors
-        if (joiErrors.query?.length === 0)
-            delete joiErrors.query
-        if (joiErrors.param?.length === 0)
-            delete joiErrors.param
-        if (joiErrors.body?.length === 0)
-            delete joiErrors.body
+        if (joiErrors.query?.length === 0) delete joiErrors.query;
+        if (joiErrors.param?.length === 0) delete joiErrors.param;
+        if (joiErrors.body?.length === 0) delete joiErrors.body;
         // Return null if no errors, i.e. all arrays are removed above
-        if (Object.keys(joiErrors).length === 0)
-            return null
-        return joiErrors
+        if (Object.keys(joiErrors).length === 0) return null;
+        return joiErrors;
     }
 
     /**
@@ -177,17 +176,17 @@ class MasterController {
      */
     static handler() {
         // Using 'self' to access the class within the async function scope
-        const self = this
+        const self = this;
         // Returns an async function serving as a RequestHandler for Express
         return asyncHandler(async (req, res) => {
             // Create a new instance of the current class
-            const controller = new self()
+            const controller = new self();
             // Combine all request data into a single object
-            const allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req }
+            const allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req };
             // Retrieve validation rules using 'validate' method
-            const validationRules = this.validate()
+            const validationRules = this.validate();
             // Perform payload validation and capture any validation errors
-            const joiErrors = this.joiValidator(req.params, req.query, req.body, validationRules)
+            const joiErrors = this.joiValidator(req.params, req.query, req.body, validationRules);
             // If there are validation errors, respond with a 400 status and the error details
             if (joiErrors) {
                 return res.status(400).json({
@@ -195,13 +194,19 @@ class MasterController {
                     message: 'Validation Error',
                     data: null,
                     errors: joiErrors,
-                })
+                });
             }
             // Invoke the 'restController' method to handle the request and get the response
-            const { response } = await controller.restController(req.params, req.query, req.body, req.headers, allData)
+            const { response } = await controller.restController(
+                req.params,
+                req.query,
+                req.body,
+                req.headers,
+                allData
+            );
             // Respond with the status and data from 'restController' method
-            res.status(response.status).json(response)
-        })
+            res.status(response.status).json(response);
+        });
     }
 
     /**
@@ -213,8 +218,8 @@ class MasterController {
      * @returns {Router} Router object with the registered GET route.
      */
     static get(router, path, middlewares) {
-        SwaggerConfig.recordApi(path, SwaggerMethod.GET, this)
-        return router.get(path, middlewares, this.handler())
+        SwaggerConfig.recordApi(path, SwaggerMethod.GET, this);
+        return router.get(path, middlewares, this.handler());
     }
 
     /**
@@ -226,8 +231,8 @@ class MasterController {
      * @returns {Router} Router object with the registered POST route.
      */
     static post(router, path, middlewares) {
-        SwaggerConfig.recordApi(path, SwaggerMethod.POST, this)
-        return router.post(path, middlewares, this.handler())
+        SwaggerConfig.recordApi(path, SwaggerMethod.POST, this);
+        return router.post(path, middlewares, this.handler());
     }
 
     /**
@@ -239,8 +244,8 @@ class MasterController {
      * @returns {Router} Router object with the registered PUT route.
      */
     static put(router, path, middlewares) {
-        SwaggerConfig.recordApi(path, SwaggerMethod.PUT, this)
-        return router.put(path, middlewares, this.handler())
+        SwaggerConfig.recordApi(path, SwaggerMethod.PUT, this);
+        return router.put(path, middlewares, this.handler());
     }
 
     /**
@@ -252,8 +257,8 @@ class MasterController {
      * @returns {Router} Router object with the registered DELETE route.
      */
     static delete(router, path, middlewares) {
-        SwaggerConfig.recordApi(path, SwaggerMethod.DELETE, this)
-        return router.delete(path, middlewares, this.handler())
+        SwaggerConfig.recordApi(path, SwaggerMethod.DELETE, this);
+        return router.delete(path, middlewares, this.handler());
     }
 
     /**
@@ -265,8 +270,8 @@ class MasterController {
      * @returns {Router} Router object with the registered PATCH route.
      */
     static patch(router, path, middlewares) {
-        SwaggerConfig.recordApi(path, SwaggerMethod.PATCH, this)
-        return router.patch(path, middlewares, this.handler())
+        SwaggerConfig.recordApi(path, SwaggerMethod.PATCH, this);
+        return router.patch(path, middlewares, this.handler());
     }
 
     /**
@@ -275,8 +280,8 @@ class MasterController {
      * @param {string} event - Event name.
      */
     static socketIO(event) {
-        this.socketRequests.push({ event, masterController: new this() })
+        this.socketRequests.push({ event, masterController: new this() });
     }
 }
 
-module.exports = MasterController
+module.exports = MasterController;

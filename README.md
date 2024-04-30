@@ -67,6 +67,7 @@ methods for efficient request handling, validation, and documentation generation
 #### Clone
 
 > Clone this repo to your local machine using `
+>
 > ```bash
 > $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
@@ -74,21 +75,25 @@ methods for efficient request handling, validation, and documentation generation
 ### Server Setup
 
 > Install dependencies
+>
 > ```bash
 > $ npm install or yarn
 > ```
 >
 > Start the server
+>
 > ```bash
 > $ npm run dev or yarn dev
 > ```
 >
 > Build the project
+>
 > ```bash
 > $ npm run build or yarn build
 > ```
 >
 > Run the project
+>
 > ```bash
 > $ npm run start or yarn start
 > ```

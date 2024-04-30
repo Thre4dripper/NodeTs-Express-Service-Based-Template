@@ -7,6 +7,6 @@ const StatusCodes = {
     SERVER_ERROR: 500,
     NOT_FOUND: 404,
     ALREADY_EXISTS: 403,
-}
+};
 
-module.exports.StatusCodes = StatusCodes
+module.exports.StatusCodes = StatusCodes;

@@ -1,6 +1,6 @@
-const { PayloadType } = require('../app/utils/RequestBuilder')
-const j2s = require('joi-to-swagger')
-const fs = require('fs').promises
+const { PayloadType } = require('../app/utils/RequestBuilder');
+const j2s = require('joi-to-swagger');
+const fs = require('fs').promises;
 
 const SwaggerMethod = {
     GET: 'get',
@@ -8,22 +8,22 @@ const SwaggerMethod = {
     PUT: 'put',
     DELETE: 'delete',
     PATCH: 'patch',
-}
+};
 
 class SwaggerConfig {
-    static swaggerDocument
-    static swaggerPath
-    static swaggerModify
+    static swaggerDocument;
+    static swaggerPath;
+    static swaggerModify;
 
     static initSwagger(options) {
         if (options) {
-            const { path, modify } = options
-            this.swaggerPath = path
-            this.swaggerModify = modify
-            this.swaggerDocument = require(path)
-            this.swaggerDocument.paths = {}
+            const { path, modify } = options;
+            this.swaggerPath = path;
+            this.swaggerModify = modify;
+            this.swaggerDocument = require(path);
+            this.swaggerDocument.paths = {};
             if (this.swaggerModify) {
-                this.modifySwaggerDocument()
+                this.modifySwaggerDocument();
             }
         } else {
             this.swaggerDocument = {
@@ -44,68 +44,68 @@ class SwaggerConfig {
                     },
                 },
                 paths: {},
-            }
+            };
         }
     }
 
     static getSwaggerDocument() {
-        return this.swaggerDocument
+        return this.swaggerDocument;
     }
 
     static swaggerDocsFromJoiSchema(validationRules) {
-        let parameters = []
+        let parameters = [];
         validationRules.payload.forEach((payload) => {
             if (payload.type === PayloadType.PARAMS || payload.type === PayloadType.QUERY) {
-                const schema = payload.schema
-                const { swagger } = j2s(schema)
+                const schema = payload.schema;
+                const { swagger } = j2s(schema);
                 for (const key in swagger.properties) {
-                    const property = swagger.properties[key]
+                    const property = swagger.properties[key];
                     const parameter = {
                         name: key,
                         in: payload.type === PayloadType.PARAMS ? 'path' : 'query',
                         required: swagger.required.includes(key),
                         type: property.type,
                         format: property.format,
-                    }
-                    parameters.push(parameter)
+                    };
+                    parameters.push(parameter);
                 }
             } else if (payload.type === PayloadType.BODY) {
-                const schema = payload.schema
-                const { swagger } = j2s(schema)
+                const schema = payload.schema;
+                const { swagger } = j2s(schema);
                 const parameter = {
                     name: 'body',
                     in: 'body',
                     required: true,
                     schema: swagger,
-                }
-                parameters.push(parameter)
+                };
+                parameters.push(parameter);
             }
-        })
-        return parameters
+        });
+        return parameters;
     }
 
     static recordApi(path, method, currentRef) {
-        const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '')
-        const parameters = this.swaggerDocsFromJoiSchema(currentRef.validate())
-        const paths = this.swaggerDocument.paths
-        const pathObj = paths[key] || {}
+        const key = path.replace(/:(\w+)/g, '{$&}').replace(/:/g, '');
+        const parameters = this.swaggerDocsFromJoiSchema(currentRef.validate());
+        const paths = this.swaggerDocument.paths;
+        const pathObj = paths[key] || {};
         const methodObj = pathObj[method] || {
             tags: [],
             summary: '',
             description: '',
             produces: ['application/json'],
             responses: this.exampleResponses(),
-        }
-        methodObj.parameters = parameters
-        methodObj.tags = currentRef.doc().tags
-        methodObj.summary = currentRef.doc().summary
-        methodObj.description = currentRef.doc().description
-        methodObj.operationId = currentRef.name
-        pathObj[method] = methodObj
-        paths[key] = pathObj
-        this.swaggerDocument.paths = paths
+        };
+        methodObj.parameters = parameters;
+        methodObj.tags = currentRef.doc().tags;
+        methodObj.summary = currentRef.doc().summary;
+        methodObj.description = currentRef.doc().description;
+        methodObj.operationId = currentRef.name;
+        pathObj[method] = methodObj;
+        paths[key] = pathObj;
+        this.swaggerDocument.paths = paths;
         if (this.swaggerModify) {
-            this.modifySwaggerDocument()
+            this.modifySwaggerDocument();
         }
     }
 
@@ -114,11 +114,11 @@ class SwaggerConfig {
             flag: 'w',
         })
             .then(() => {
-                console.log('Swagger document updated')
+                console.log('Swagger document updated');
             })
             .catch((err) => {
-                console.log('Error updating swagger document', err)
-            })
+                console.log('Error updating swagger document', err);
+            });
     }
 
     static exampleResponses() {
@@ -202,9 +202,9 @@ class SwaggerConfig {
                     },
                 },
             },
-        }
+        };
     }
 }
 
-module.exports.SwaggerMethod = SwaggerMethod
-module.exports.default = SwaggerConfig
+module.exports.SwaggerMethod = SwaggerMethod;
+module.exports.default = SwaggerConfig;

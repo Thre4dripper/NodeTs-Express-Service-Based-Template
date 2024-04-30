@@ -1,6 +1,6 @@
-const path = require('path')
-require('dotenv').config()
-const { Op, Sequelize } = require('sequelize')
+const path = require('path');
+require('dotenv').config();
+const { Op, Sequelize } = require('sequelize');
 const sequelizeOptions = {
     database: process.env.DB_NAME,
     username: process.env.DB_USER,
@@ -75,20 +75,20 @@ const sequelizeOptions = {
         ],
         max: 3,
     },
-}
-const sequelize = new Sequelize(sequelizeOptions)
+};
+const sequelize = new Sequelize(sequelizeOptions);
 
 const sequelizeConnect = async () => {
     try {
-        await sequelize.authenticate()
-        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.')
-        await sequelize.sync({ alter: false })
-        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.')
+        await sequelize.authenticate();
+        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.');
+        await sequelize.sync({ alter: false });
+        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.');
     } catch (err) {
-        console.error('Unable to connect to the database:', err)
-        throw err
+        console.error('Unable to connect to the database:', err);
+        throw err;
     }
-}
+};
 
-exports.sequelize = sequelize
-exports.sequelizeConnect = sequelizeConnect
+exports.sequelize = sequelize;
+exports.sequelizeConnect = sequelizeConnect;

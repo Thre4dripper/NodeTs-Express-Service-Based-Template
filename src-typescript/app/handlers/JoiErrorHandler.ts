@@ -1,12 +1,7 @@
-import { NextFunction, Request, Response } from 'express'
-import Joi from 'joi'
+import { NextFunction, Request, Response } from 'express';
+import Joi from 'joi';
 
-const joiErrorHandler = (
-    err: Error,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+const joiErrorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof Joi.ValidationError) {
         // Joi validation error occurred
         const errorMessage = err.details.map((error) => error.message).join(', ');
@@ -16,4 +11,4 @@ const joiErrorHandler = (
     }
 };
 
-export default joiErrorHandler
+export default joiErrorHandler;
