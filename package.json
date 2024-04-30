@@ -4,13 +4,14 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev-ts": "nodemon src-typescript/server.ts --config nodemon-ts.json",
-    "dev-js": "nodemon src-javascript/server.js --config nodemon-js.json",
+    "dev-ts": "yarn prettier-ts && nodemon src-typescript/server.ts --config nodemon-ts.json",
+    "dev-js": "yarn prettier-js && nodemon src-javascript/server.js --config nodemon-js.json",
     "build": "tsc && copyfiles -u 1 \"src-typescript/**/*.{css,html,ico,png,svg}\" dist/src/",
     "start-ts": "ts-node src-typescript/server.ts",
     "start-js": "node src-javascript/server.js",
     "preview": "node dist/server.js",
-    "prettier": "prettier --write \"src-javascript/**/*.js\" \"src-typescript/**/*.ts\"",
+    "prettier-ts": "prettier --write \"src-typescript/**/*.ts\"",
+    "prettier-js": "prettier --write \"src-javascript/**/*.js\"",
     "lint": "eslint --ext .ts,.js ."
   },
   "author": "Ijlal Ahmad",
