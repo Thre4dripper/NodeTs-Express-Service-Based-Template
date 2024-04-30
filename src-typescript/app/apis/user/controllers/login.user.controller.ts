@@ -29,7 +29,11 @@ export default class LoginUserController extends MasterController<any, any, ILog
     }
 
     async restController({
+        params,
+        query,
         body,
+        headers,
+        allData,
     }: IRestControllerProps<null, null, ILoginUser>): Promise<ResponseBuilder> {
         const { email, password } = body;
 

@@ -30,7 +30,11 @@ export default class RegisterUserController extends MasterController<null, null,
     }
 
     async restController({
+        params,
+        query,
         body,
+        headers,
+        allData,
     }: IRestControllerProps<null, null, IRegisterUser>): Promise<ResponseBuilder> {
         const { name, email, password } = body;
 
