@@ -1,12 +1,12 @@
-import MasterController from '../../../utils/MasterController';
-import { ILoginUser } from '../interfaces';
+import MasterController, { IRestControllerProps } from '../../../utils/MasterController';
 import RequestBuilder from '../../../utils/RequestBuilder';
 import Joi from 'joi';
+import { ILoginUser } from '../interfaces';
 import userService from '../services/user.service';
 import ResponseBuilder from '../../../utils/ResponseBuilder';
 import { StatusCodes } from '../../../enums/StatusCodes';
 
-export default class LoginUserController extends MasterController<null, null, ILoginUser> {
+export default class LoginUserController extends MasterController<any, any, ILoginUser> {
     static doc() {
         return {
             tags: ['User'],
@@ -28,13 +28,9 @@ export default class LoginUserController extends MasterController<null, null, IL
         return payload;
     }
 
-    async restController(
-        params: null,
-        query: null,
-        body: ILoginUser,
-        headers: any,
-        allData: any
-    ): Promise<any> {
+    async restController({
+        body,
+    }: IRestControllerProps<null, null, ILoginUser>): Promise<ResponseBuilder> {
         const { email, password } = body;
 
         const response = await userService.loginUser({ email, password });

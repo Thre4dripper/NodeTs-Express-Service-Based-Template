@@ -1,8 +1,9 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder';
-import { Request, RequestHandler, Response, Router } from 'express';
+import express, { Request, RequestHandler, Response, Router } from 'express';
 import asyncHandler from './AsyncHandler';
 import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig';
 import { Server, Socket } from 'socket.io';
+import ResponseBuilder from './ResponseBuilder';
 
 interface IJoiErrors {
     query?: string[];
@@ -12,7 +13,21 @@ interface IJoiErrors {
 
 interface ISocketClient {
     event: string;
-    masterController: MasterController<any, any, any>;
+    masterController: MasterController<null, null, null>;
+}
+
+export interface IRestControllerProps<P, Q, B> {
+    params: P;
+    query: Q;
+    body: B;
+    headers: express.Request['headers'];
+    allData: any;
+}
+
+export interface ISocketControllerProps {
+    io: Server;
+    socket: Socket;
+    payload: any;
 }
 
 /**
@@ -94,29 +109,39 @@ class MasterController<P, Q, B> {
     /**
      * @method MasterController.restController
      * @description Handles the controller logic after validating the request payload.
-     * @param {Object} params - Parameters from the request URL.
-     * @param {Object} query - Query parameters from the request URL.
-     * @param {Object} body - Body content from the request.
-     * @param {Object} headers - Headers from the request.
-     * @param {Object} allData - Contains all data including params, query, body, headers, and custom data from middlewares.
+     * @param params - Parameters from the request URL.
+     * @param query - Query parameters from the request URL.
+     * @param body - Body content from the request.
+     * @param headers - Headers from the request.
+     * @param allData - Contains all data including params, query, body, headers, and custom data from middlewares.
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {Promise<any>} Promise resolving to any value representing the response.
      */
-    async restController(params: P, query: Q, body: B, headers: any, allData: any): Promise<any> {
+    async restController({
+        params,
+        query,
+        body,
+        headers,
+        allData,
+    }: IRestControllerProps<P, Q, B>): Promise<ResponseBuilder> {
         // Controller logic goes here
+        console.log(params, query, body, headers, allData);
+        // Return a ResponseBuilder instance
+        return new ResponseBuilder(200, null, 'Success');
     }
 
     /**
      * @method MasterController.socketController
      * @description Handles the logic for socket events.
-     * @param {Server} io - Instance of the Socket.IO server.
-     * @param {Socket} socket - Socket instance representing the client connection.
-     * @param {any} payload - Payload data received from the client.
+     * @param io - Instance of the Socket.IO server.
+     * @param socket - Socket instance representing the client connection.
+     * @param payload - Payload data received from the client.
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {any} Returns any value, usually the response or processing result.
      */
-    socketController(io: Server, socket: Socket, payload: any): any {
+    socketController({ io, socket, payload }: ISocketControllerProps): any {
         // Logic for handling socket events goes here
+        console.log(io, socket, payload);
     }
 
     /**
@@ -227,13 +252,13 @@ class MasterController<P, Q, B> {
             }
 
             // Invoke the 'restController' method to handle the request and get the response
-            const { response } = await controller.restController(
-                req.params,
-                req.query,
-                req.body,
-                req.headers,
-                allData
-            );
+            const { response } = await controller.restController({
+                params: req.params,
+                query: req.query,
+                body: req.body,
+                headers: req.headers,
+                allData,
+            });
 
             // Respond with the status and data from 'restController' method
             res.status(response.status).json(response);
@@ -250,7 +275,7 @@ class MasterController<P, Q, B> {
      */
     static get(router: Router, path: string, middlewares: RequestHandler[]): Router {
         SwaggerConfig.recordApi(path, SwaggerMethod.GET, this);
-        return router.get(path, middlewares, this.handler());
+        return router.get(path, ...middlewares, this.handler());
     }
 
     /**
@@ -263,7 +288,7 @@ class MasterController<P, Q, B> {
      */
     static post(router: Router, path: string, middlewares: RequestHandler[]): Router {
         SwaggerConfig.recordApi(path, SwaggerMethod.POST, this);
-        return router.post(path, middlewares, this.handler());
+        return router.post(path, ...middlewares, this.handler());
     }
 
     /**
@@ -276,7 +301,7 @@ class MasterController<P, Q, B> {
      */
     static put(router: Router, path: string, middlewares: RequestHandler[]): Router {
         SwaggerConfig.recordApi(path, SwaggerMethod.PUT, this);
-        return router.put(path, middlewares, this.handler());
+        return router.put(path, ...middlewares, this.handler());
     }
 
     /**
@@ -289,7 +314,7 @@ class MasterController<P, Q, B> {
      */
     static delete(router: Router, path: string, middlewares: RequestHandler[]): Router {
         SwaggerConfig.recordApi(path, SwaggerMethod.DELETE, this);
-        return router.delete(path, middlewares, this.handler());
+        return router.delete(path, ...middlewares, this.handler());
     }
 
     /**
@@ -302,7 +327,7 @@ class MasterController<P, Q, B> {
      */
     static patch(router: Router, path: string, middlewares: RequestHandler[]): Router {
         SwaggerConfig.recordApi(path, SwaggerMethod.PATCH, this);
-        return router.patch(path, middlewares, this.handler());
+        return router.patch(path, ...middlewares, this.handler());
     }
 
     /**
