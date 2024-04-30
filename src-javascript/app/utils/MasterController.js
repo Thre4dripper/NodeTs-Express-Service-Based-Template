@@ -1,6 +1,7 @@
 const { default: RequestBuilder, PayloadType } = require('./RequestBuilder');
 const asyncHandler = require('./AsyncHandler');
 const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig');
+const ResponseBuilder = require('./ResponseBuilder');
 
 /**
  * @class MasterController
@@ -88,8 +89,12 @@ class MasterController {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {Promise<any>} Promise resolving to any value representing the response.
      */
-    async restController(params, query, body, headers, allData) {
+    async restController({ params, query, body, headers, allData }) {
         // Controller logic goes here
+        // Controller logic goes here
+        console.log(params, query, body, headers, allData);
+        // Return a ResponseBuilder instance
+        return new ResponseBuilder(200, null, 'Success');
     }
 
     /**
@@ -101,8 +106,9 @@ class MasterController {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {any} Returns any value, usually the response or processing result.
      */
-    socketController(io, socket, payload) {
+    socketController({ io, socket, payload }) {
         // Logic for handling socket events goes here
+        console.log(io, socket, payload);
     }
 
     /**

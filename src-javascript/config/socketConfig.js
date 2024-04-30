@@ -29,7 +29,7 @@ class SocketConfig {
         });
         MasterController.getSocketRequests().forEach((client) => {
             socket.on(client.event, (payload) => {
-                asyncHandler(client.masterController.socketController(io, socket, payload));
+                asyncHandler(client.masterController.socketController({ io, socket, payload }));
             });
         });
     }
