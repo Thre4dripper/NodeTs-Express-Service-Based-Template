@@ -1,0 +1,58 @@
+name: Deploy to Other Repos
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-changes:
+    name: Check changes
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check_changes.outputs.should_deploy }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check changes and set output
+        id: check_changes
+        run: |
+          LAST_COMMIT_SHA=$(git log -1 --format="%H")
+          LAST_SECOND_COMMIT_SHA=$(git log --skip=1 -1 --format="%H")
+          
+          CHANGED_FILES=$(git diff --name-only $LAST_SECOND_COMMIT_SHA $LAST_COMMIT_SHA)
+          if [[ $CHANGED_FILES == *'src-javascript/'* || $CHANGED_FILES == *'src-typescript/'* ]]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+
+  deploy1:
+    name: Deploy to node-server-init
+    needs: check-changes
+    if: needs.check-changes.outputs.should_deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fire Deploy Event
+        run: |
+          curl --location 'https://api.github.com/repos/thre4dripper/node-server-init/actions/workflows/96324202/dispatches' \
+              --header 'Accept: application/vnd.github+json' \
+              --header 'Authorization: Bearer ${{ secrets.WORKFLOW_TOKEN }}' \
+              --header 'Content-Type: application/json' \
+              --data '{ "ref": "main" }'
+
+  deploy2:
+    name: Deploy to express-master-controller
+    needs: check-changes
+    if: needs.check-changes.outputs.should_deploy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fire Deploy Event
+        run: |
+          curl --location 'https://api.github.com/repos/thre4dripper/express-master-controller/actions/workflows/96432150/dispatches' \
+              --header 'Accept: application/vnd.github+json' \
+              --header 'Authorization: Bearer ${{ secrets.WORKFLOW_TOKEN }}' \
+              --header 'Content-Type: application/json' \
+              --data '{ "ref": "main" }'
