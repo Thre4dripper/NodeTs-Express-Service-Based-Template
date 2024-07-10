@@ -90,8 +90,11 @@ const server = async () => {
     };
     // start swagger config
     SwaggerConfig.initSwagger({
-        path: path.join(__dirname, '../../swagger.json'),
-        modify: false,
+        title: 'Node Swagger API',
+        description: 'Demonstrating how to describe a RESTful API with Swagger',
+        version: '1.0.0',
+        swaggerDocPath: path.join(__dirname, '../../swagger.json'),
+        modifySwaggerDoc: false,
     });
     // end swagger config
     await loadRouters(path.join(__dirname, '../app/routes'));

@@ -16,11 +16,11 @@ class SwaggerConfig {
     static swaggerModify;
 
     static initSwagger(options) {
-        if (options) {
-            const { path, modify } = options;
-            this.swaggerPath = path;
-            this.swaggerModify = modify;
-            this.swaggerDocument = require(path);
+        const { title, description, version, swaggerDocPath, modifySwaggerDoc } = options;
+        if (swaggerDocPath) {
+            this.swaggerPath = swaggerDocPath;
+            this.swaggerModify = modifySwaggerDoc;
+            this.swaggerDocument = require(swaggerDocPath);
             this.swaggerDocument.paths = {};
             if (this.swaggerModify) {
                 this.modifySwaggerDocument();
@@ -29,9 +29,9 @@ class SwaggerConfig {
             this.swaggerDocument = {
                 swagger: '2.0',
                 info: {
-                    version: '1.0.0',
-                    title: 'Node Swagger API',
-                    description: 'Demonstrating how to describe a RESTful API with Swagger',
+                    title,
+                    description,
+                    version,
                 },
                 schemes: ['http', 'https'],
                 consumes: ['application/json'],

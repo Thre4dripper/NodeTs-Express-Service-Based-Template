@@ -83,22 +83,26 @@ interface SwaggerDocument {
     paths: Paths;
 }
 
-interface SwaggerConfigOptions {
-    path: string;
-    modify?: boolean;
+// exported because it is used in another repo express-master-controller which is connected through workflow
+export interface SwaggerConfigOptions {
+    title: string;
+    description: string;
+    version: string;
+    swaggerDocPath?: string;
+    modifySwaggerDoc?: Boolean;
 }
 
 class SwaggerConfig {
     private static swaggerDocument: SwaggerDocument;
     private static swaggerPath: string;
-    private static swaggerModify: boolean | undefined;
+    private static swaggerModify: Boolean | undefined;
 
-    static initSwagger(options?: SwaggerConfigOptions) {
-        if (options) {
-            const { path, modify } = options;
-            this.swaggerPath = path;
-            this.swaggerModify = modify;
-            this.swaggerDocument = require(path);
+    static initSwagger(options: SwaggerConfigOptions) {
+        const { title, description, version, swaggerDocPath, modifySwaggerDoc } = options;
+        if (swaggerDocPath) {
+            this.swaggerPath = swaggerDocPath;
+            this.swaggerModify = modifySwaggerDoc;
+            this.swaggerDocument = require(swaggerDocPath);
             this.swaggerDocument.paths = {};
 
             if (this.swaggerModify) {
@@ -108,9 +112,9 @@ class SwaggerConfig {
             this.swaggerDocument = {
                 swagger: '2.0',
                 info: {
-                    version: '1.0.0',
-                    title: 'Node Swagger API',
-                    description: 'Demonstrating how to describe a RESTful API with Swagger',
+                    title,
+                    description,
+                    version,
                 },
                 schemes: ['http', 'https'],
                 consumes: ['application/json'],
