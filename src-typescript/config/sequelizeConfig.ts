@@ -14,7 +14,7 @@ const sequelizeOptions: SequelizeOptions = {
     dialectOptions: {
         ssl: false,
     },
-    models: [path.join(__dirname, '..', 'app', 'models') + '/**/sequelize*.model.ts'],
+    models: [path.join(__dirname, '..', 'app', 'models')],
     logging: console.log,
     operatorsAliases: {
         $eq: Op.eq,

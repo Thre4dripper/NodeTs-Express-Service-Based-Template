@@ -25,7 +25,7 @@ class LoginUserController extends MasterController {
         return payload;
     }
 
-    async restController({ params, query, body, headers, allData }) {
+    async restController(params, query, body, headers, allData) {
         const { email, password } = body;
         const response = await userService.loginUser({ email, password });
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User logged in successfully');

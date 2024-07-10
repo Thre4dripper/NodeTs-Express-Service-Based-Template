@@ -89,7 +89,7 @@ class MasterController {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {Promise<any>} Promise resolving to any value representing the response.
      */
-    async restController({ params, query, body, headers, allData }) {
+    async restController(params, query, body, headers, allData) {
         // Controller logic goes here
         // Controller logic goes here
         console.log(params, query, body, headers, allData);
@@ -106,7 +106,7 @@ class MasterController {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {any} Returns any value, usually the response or processing result.
      */
-    socketController({ io, socket, payload }) {
+    socketController(io, socket, payload) {
         // Logic for handling socket events goes here
         console.log(io, socket, payload);
     }

@@ -1,4 +1,4 @@
-import MasterController, { IRestControllerProps } from '../../../utils/MasterController';
+import MasterController from '../../../utils/MasterController';
 import { StatusCodes } from '../../../enums/StatusCodes';
 import ResponseBuilder from '../../../utils/ResponseBuilder';
 import RequestBuilder from '../../../utils/RequestBuilder';
@@ -29,13 +29,13 @@ export default class RegisterUserController extends MasterController<null, null,
         return payload;
     }
 
-    async restController({
-        params,
-        query,
-        body,
-        headers,
-        allData,
-    }: IRestControllerProps<null, null, IRegisterUser>): Promise<ResponseBuilder> {
+    async restController(
+        params: null,
+        query: null,
+        body: IRegisterUser,
+        headers: any,
+        allData: any
+    ): Promise<ResponseBuilder> {
         const { name, email, password } = body;
 
         const response = await userService.registerUser({ name, email, password });

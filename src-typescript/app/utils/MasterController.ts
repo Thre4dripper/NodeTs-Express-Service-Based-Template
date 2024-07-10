@@ -1,9 +1,9 @@
 import RequestBuilder, { PayloadType } from './RequestBuilder';
-import express, { Request, RequestHandler, Response, Router } from 'express';
+import { Request, RequestHandler, Response, Router } from 'express';
 import asyncHandler from './AsyncHandler';
 import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig';
-import { Server, Socket } from 'socket.io';
 import ResponseBuilder from './ResponseBuilder';
+import { Server, Socket } from 'socket.io';
 
 interface IJoiErrors {
     query?: string[];
@@ -14,20 +14,6 @@ interface IJoiErrors {
 interface ISocketClient {
     event: string;
     masterController: MasterController<null, null, null>;
-}
-
-export interface IRestControllerProps<P, Q, B> {
-    params: P;
-    query: Q;
-    body: B;
-    headers: express.Request['headers'];
-    allData: any;
-}
-
-export interface ISocketControllerProps {
-    io: Server;
-    socket: Socket;
-    payload: any;
 }
 
 /**
@@ -117,13 +103,13 @@ class MasterController<P, Q, B> {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {Promise<any>} Promise resolving to any value representing the response.
      */
-    async restController({
-        params,
-        query,
-        body,
-        headers,
-        allData,
-    }: IRestControllerProps<P, Q, B>): Promise<ResponseBuilder> {
+    async restController(
+        params: P,
+        query: Q,
+        body: B,
+        headers: any,
+        allData: any
+    ): Promise<ResponseBuilder> {
         // Controller logic goes here
         console.log(params, query, body, headers, allData);
         // Return a ResponseBuilder instance
@@ -139,7 +125,7 @@ class MasterController<P, Q, B> {
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {any} Returns any value, usually the response or processing result.
      */
-    socketController({ io, socket, payload }: ISocketControllerProps): any {
+    socketController(io: Server, socket: Socket, payload: any): any {
         // Logic for handling socket events goes here
         console.log(io, socket, payload);
     }
@@ -252,13 +238,13 @@ class MasterController<P, Q, B> {
             }
 
             // Invoke the 'restController' method to handle the request and get the response
-            const { response } = await controller.restController({
-                params: req.params,
-                query: req.query,
-                body: req.body,
-                headers: req.headers,
-                allData,
-            });
+            const { response } = await controller.restController(
+                req.params,
+                req.query,
+                req.body,
+                req.headers,
+                allData
+            );
 
             // Respond with the status and data from 'restController' method
             res.status(response.status).json(response);

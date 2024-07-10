@@ -1,4 +1,4 @@
-import MasterController, { IRestControllerProps } from '../../../utils/MasterController';
+import MasterController from '../../../utils/MasterController';
 import RequestBuilder from '../../../utils/RequestBuilder';
 import Joi from 'joi';
 import { ILoginUser } from '../interfaces';
@@ -28,13 +28,13 @@ export default class LoginUserController extends MasterController<any, any, ILog
         return payload;
     }
 
-    async restController({
-        params,
-        query,
-        body,
-        headers,
-        allData,
-    }: IRestControllerProps<null, null, ILoginUser>): Promise<ResponseBuilder> {
+    async restController(
+        params: null,
+        query: null,
+        body: ILoginUser,
+        headers: any,
+        allData: any
+    ): Promise<ResponseBuilder> {
         const { email, password } = body;
 
         const response = await userService.loginUser({ email, password });
