@@ -78,7 +78,7 @@ const server = async () => {
                 await loadRouters(fullPath);
             } else if (
                 entry.isFile() &&
-                (entry.name.endsWith('.router.ts') || entry.name.endsWith('.router.js'))
+                (entry.name.endsWith('.routes.ts') || entry.name.endsWith('.routes.js'))
             ) {
                 const router = require(fullPath);
                 //to support both default exports in commonjs and es6
