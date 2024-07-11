@@ -1,0 +1,44 @@
+# Use -f flag to specify the Dockerfile when building the image manually
+# Use the official Node.js v22 image
+FROM node:22 as build
+
+# Create app directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock files
+COPY package*.json ./
+COPY yarn.lock ./
+
+# Install app dependencies
+RUN yarn
+
+# Copy source files
+COPY . .
+
+# Build the application
+RUN yarn build
+
+# NEXT STAGE: Create a new image with only the built files
+FROM node:22-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Copy built files from the previous stage
+COPY --from=build /app/dist ./dist
+
+# Copy package.json and yarn.lock files
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/yarn.lock ./
+
+# Copy swagger files
+COPY --from=build /app/swagger.json ./
+
+# Install app dependencies
+RUN yarn --production
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Define the command to run the application
+CMD ["yarn", "preview"]
