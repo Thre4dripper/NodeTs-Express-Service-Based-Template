@@ -31,20 +31,6 @@ jobs:
           fi
 
   deploy1:
-    name: Deploy to node-server-init
-    needs: check-changes
-    if: needs.check-changes.outputs.should_deploy == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fire Deploy Event
-        run: |
-          curl --location 'https://api.github.com/repos/thre4dripper/node-server-init/actions/workflows/96324202/dispatches' \
-              --header 'Accept: application/vnd.github+json' \
-              --header 'Authorization: Bearer ${{ secrets.WORKFLOW_TOKEN }}' \
-              --header 'Content-Type: application/json' \
-              --data '{ "ref": "main" }'
-
-  deploy2:
     name: Deploy to express-master-controller
     needs: check-changes
     if: needs.check-changes.outputs.should_deploy == 'true'
@@ -53,6 +39,18 @@ jobs:
       - name: Fire Deploy Event
         run: |
           curl --location 'https://api.github.com/repos/thre4dripper/express-master-controller/actions/workflows/96432150/dispatches' \
+              --header 'Accept: application/vnd.github+json' \
+              --header 'Authorization: Bearer ${{ secrets.WORKFLOW_TOKEN }}' \
+              --header 'Content-Type: application/json' \
+              --data '{ "ref": "main" }'
+
+  deploy2:
+    name: Deploy to node-server-init
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fire Deploy Event
+        run: |
+          curl --location 'https://api.github.com/repos/thre4dripper/node-server-init/actions/workflows/96324202/dispatches' \
               --header 'Accept: application/vnd.github+json' \
               --header 'Authorization: Bearer ${{ secrets.WORKFLOW_TOKEN }}' \
               --header 'Content-Type: application/json' \
