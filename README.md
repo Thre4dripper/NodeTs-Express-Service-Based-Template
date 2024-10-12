@@ -62,9 +62,26 @@ validation, and more.
 Extend the `MasterController` to create controller classes for specific routes or socket events. Use the provided
 methods for efficient request handling, validation, and documentation generation.
 
-### Installation
+## Installation
 
-#### Clone
+### Automated (CLI Tool)
+
+> Easily initialize a Node.js server project with custom configurations using our CLI tool:
+>
+> ```bash
+> npx node-server-init <folder-name>
+> ```
+>
+> If you want to use the current directory as the project folder, run the following command:
+>
+> ```bash
+> npx node-server-init .
+> ```
+>
+> For more information, visit the [CLI Tool](https://www.npmjs.com/package/node-server-init) page or
+> the [GitHub](https://github.com/Thre4dripper/node-server-init) repository.
+
+### Manual
 
 > Clone this repo to your local machine using `
 >
