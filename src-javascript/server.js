@@ -5,6 +5,7 @@ const { mongooseConnect } = require('./config/mongooseConfig');
 const { sequelizeConnect } = require('./config/sequelizeConfig');
 const SocketConfig = require('./config/socketConfig');
 const CronConfig = require('./config/cronConfig');
+const path = require('path');
 
 require('dotenv').config();
 
@@ -74,6 +75,7 @@ const port = process.env.PORT || 3000;
     // End Initialize Socket.IO
 
     // Initialize the cron jobs
+    await CronConfig.InitCronJobs(path.join(__dirname, 'app/crons'));
     CronConfig.startCronJobs();
 
     // End Initialize the cron jobs

@@ -57,6 +57,8 @@ class MasterController<P, Q, B> {
         return this.cronRequests;
     }
 
+    // end cron job snippet
+
     /**
      * @method MasterController.doc
      * @description This method is used to get the swagger doc for a controller class
@@ -148,6 +150,10 @@ class MasterController<P, Q, B> {
         console.log(io, socket, payload);
     }
 
+    /**
+     * @method MasterController.cronController
+     * @description Handles the logic for cron jobs.
+     */
     cronController(): void {
         // Implement cron job logic here
         console.log('Cron job executed');
@@ -348,6 +354,11 @@ class MasterController<P, Q, B> {
         this.socketRequests.push({ event, masterController: new this() });
     }
 
+    /**
+     * @method MasterController.cronJob
+     * @description Registers a cron job for the controller class.
+     * @param {string} cronPattern - Cron pattern for the job.
+     */
     static cronJob(cronPattern: string) {
         this.cronRequests.push({ cronPattern, masterController: new this() });
     }
