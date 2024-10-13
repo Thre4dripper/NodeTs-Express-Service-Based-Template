@@ -4,7 +4,6 @@ import asyncHandler from './AsyncHandler';
 import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig';
 import ResponseBuilder from './ResponseBuilder';
 import { Server, Socket } from 'socket.io';
-import CronConfig from '../../config/cronConfig';
 
 interface IJoiErrors {
     query?: string[];
@@ -18,7 +17,7 @@ interface ISocketClient {
 }
 
 interface ICronJob {
-    cronPattern: string | CronConfig;
+    cronPattern: string;
     masterController: MasterController<null, null, null>;
 }
 
@@ -349,7 +348,7 @@ class MasterController<P, Q, B> {
         this.socketRequests.push({ event, masterController: new this() });
     }
 
-    static cronJob(cronPattern: string | CronConfig) {
+    static cronJob(cronPattern: string) {
         this.cronRequests.push({ cronPattern, masterController: new this() });
     }
 }
