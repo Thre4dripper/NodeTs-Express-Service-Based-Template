@@ -25,6 +25,22 @@ class MasterController {
     }
 
     // end socket requests snippet
+
+    // start cron job snippet
+    static cronRequests = [];
+
+    /**
+     * @method MasterController.getCronRequests
+     * @description This static method is used to retrieve all the cron job instances for a controller class.
+     *
+     * @returns {ICronJob[]} - Returns an array of ICronJob objects, each representing a cron job instance
+     */
+    static getCronRequests() {
+        return this.cronRequests;
+    }
+
+    // end cron job snippet
+
     /**
      * @method MasterController.doc
      * @description This method is used to get the swagger doc for a controller class
@@ -109,6 +125,15 @@ class MasterController {
     socketController(io, socket, payload) {
         // Logic for handling socket events goes here
         console.log(io, socket, payload);
+    }
+
+    /**
+     * @method MasterController.cronController
+     * @description Handles the logic for cron jobs.
+     */
+    cronController() {
+        // Implement cron job logic here
+        console.log('Cron job executed');
     }
 
     /**
@@ -287,6 +312,15 @@ class MasterController {
      */
     static socketIO(event) {
         this.socketRequests.push({ event, masterController: new this() });
+    }
+
+    /**
+     * @method MasterController.cronJob
+     * @description Registers a cron job for the controller class.
+     * @param {string} cronPattern - Cron pattern for the job.
+     */
+    static cronJob(cronPattern) {
+        this.cronRequests.push({ cronPattern, masterController: new this() });
     }
 }
 
