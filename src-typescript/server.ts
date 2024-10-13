@@ -4,6 +4,7 @@ import * as process from 'process';
 import { mongooseConnect } from './config/mongooseConfig';
 import { sequelizeConnect } from './config/sequelizeConfig';
 import SocketConfig from './config/socketConfig';
+import CronConfig from './config/cronConfig';
 
 require('dotenv').config();
 
@@ -69,6 +70,11 @@ const port = process.env.PORT || 3000;
         SocketConfig.socketListener(io, socket);
     });
     // End Initialize Socket.IO
+
+    // Initialize the cron jobs
+    CronConfig.startCronJobs();
+
+    // End Initialize the cron jobs
 
     // Start listening for HTTP requests
     httpServer.listen(port, () => {
