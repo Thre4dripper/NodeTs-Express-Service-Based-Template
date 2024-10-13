@@ -18,6 +18,7 @@
 ![Socket](https://img.shields.io/badge/-Socket-FF6900?style=flat-square&logo=Socket.io&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
+![CronJobs](https://img.shields.io/badge/-CronJobs-00FFFF?style=flat-square)
 
 A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture
 that can interact with MySQL, PostgresSQL, Sqlite, MariaDB, MSSql, DB2, Snowflake, Oracle, MongoDB.
@@ -35,6 +36,7 @@ more.
 - **Service-Based Architecture**: Modular approach for better organization and scalability.
 - **Socket Events**: Socket event handling using Socket.io.
 - **Docker**: Dockerized for easy deployment.
+- **Cron Jobs**: Schedule tasks using cron jobs.
 
 ## Modules
 
@@ -53,6 +55,7 @@ validation, and more.
 
 - **Controller Logic Handling**: `restController` method manages HTTP requests.
 - **Socket Event Handling**: `socketController` method manages socket events.
+- **Cron Job Scheduling**: `cronController` method schedules cron jobs.
 - **Payload Validation**: `joiValidator` method validates incoming request payloads.
 - **Swagger Documentation Generation**: `doc` method generates Swagger documentation.
 - **Route Handling**: `get`, `post`, `put`, and `delete` methods register routes within the Express router.
@@ -222,18 +225,6 @@ methods for efficient request handling, validation, and documentation generation
 >
 > ```bash
 > $ docker rmi <image-name>
-> ```
->
-> #### List all containers
->
-> ```bash
-> $ docker ps -a
-> ```
->
-> #### List all running containers
->
-> ```bash
-> $ docker ps
 > ```
 
 ### Contributing
