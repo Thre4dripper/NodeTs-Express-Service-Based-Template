@@ -6,55 +6,8 @@ on:
       - main
 
 jobs:
-  check-changes:
-    name: Check changes
-    runs-on: ubuntu-latest
-    outputs:
-      should_deploy: ${{ steps.check_changes.outputs.should_deploy }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check changes and set output
-        id: check_changes
-        run: |
-          LAST_COMMIT_SHA=$(git log -1 --format="%H")
-          LAST_SECOND_COMMIT_SHA=$(git log --skip=1 -1 --format="%H")
-          
-          CHANGED_FILES=$(git diff --name-only $LAST_SECOND_COMMIT_SHA $LAST_COMMIT_SHA)
-          
-          declare -a TRIGGER_FILES=(
-            [0]="AsyncHandler.ts"
-            [1]="MasterController.ts"
-            [2]="RequestBuilder.ts"
-            [3]="ResponseBuilder.ts"
-            [4]="socketConfig.ts"
-            [5]="swaggerConfig.ts"
-            [6]="AsyncHandler.js"
-            [7]="MasterController.js"
-            [8]="RequestBuilder.js"
-            [9]="ResponseBuilder.js"
-            [10]="socketConfig.js"
-            [11]="swaggerConfig.js"
-          )
-          
-          echo "should_deploy=false" >> $GITHUB_OUTPUT
-          
-            for i in "${TRIGGER_FILES[@]}"
-            do
-              if [[ $CHANGED_FILES == *"$i"* ]]; then
-                echo "should_deploy=true" >> $GITHUB_OUTPUT
-                break
-              fi
-            done
-        shell: bash
-
   deploy1:
     name: Deploy to express-master-controller
-    needs: check-changes
-    if: needs.check-changes.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Fire Deploy Event
