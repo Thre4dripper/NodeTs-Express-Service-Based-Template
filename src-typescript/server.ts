@@ -73,7 +73,12 @@ const port = process.env.PORT || 3000;
     // End Initialize Socket.IO
 
     // Initialize the cron jobs
-    await CronConfig.InitCronJobs(path.join(__dirname, 'app/crons'));
+    await CronConfig.InitCronJobs(path.join(__dirname, 'app/crons'), (pathToCron: string) => {
+        // configurable import statement to load all the cron jobs before starting server
+        // This lambda function is called for each cron job file found
+
+        require(pathToCron);
+    });
     CronConfig.startCronJobs();
 
     // End Initialize the cron jobs
