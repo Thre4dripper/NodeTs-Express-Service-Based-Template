@@ -1,5 +1,4 @@
-import { CronMonth } from '../enums/CronMonth';
-import { CronWeekday } from '../enums/CronWeekday';
+import { CronMonth, CronWeekday } from '../enums/CronJob';
 
 class CronBuilder {
     private readonly fields: { [key: string]: string };

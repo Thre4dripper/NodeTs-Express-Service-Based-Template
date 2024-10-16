@@ -72,7 +72,7 @@ const port = process.env.PORT || 3000;
     });
     // End Initialize Socket.IO
 
-    // Initialize the cron jobs
+    // Initialize Cron Jobs
     await CronConfig.InitCronJobs(path.join(__dirname, 'app/crons'), (pathToCron: string) => {
         // configurable import statement to load all the cron jobs before starting server
         // This lambda function is called for each cron job file found
@@ -81,7 +81,7 @@ const port = process.env.PORT || 3000;
     });
     CronConfig.startCronJobs();
 
-    // End Initialize the cron jobs
+    // End Initialize Cron Jobs
 
     // Start listening for HTTP requests
     httpServer.listen(port, () => {

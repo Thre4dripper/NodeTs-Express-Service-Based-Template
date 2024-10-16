@@ -44,7 +44,7 @@ class MasterController<P, Q, B> {
 
     // end socket requests snippet
 
-    // start cron job snippet
+    // start cron jobs snippet
     private static cronRequests: ICronJob[] = [];
 
     /**
@@ -57,7 +57,7 @@ class MasterController<P, Q, B> {
         return this.cronRequests;
     }
 
-    // end cron job snippet
+    // end cron jobs snippet
 
     /**
      * @method MasterController.doc

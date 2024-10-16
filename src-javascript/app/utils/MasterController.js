@@ -26,7 +26,7 @@ class MasterController {
 
     // end socket requests snippet
 
-    // start cron job snippet
+    // start cron jobs snippet
     static cronRequests = [];
 
     /**
@@ -39,7 +39,7 @@ class MasterController {
         return this.cronRequests;
     }
 
-    // end cron job snippet
+    // end cron jobs snippet
 
     /**
      * @method MasterController.doc

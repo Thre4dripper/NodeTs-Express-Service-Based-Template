@@ -74,11 +74,11 @@ const port = process.env.PORT || 3000;
     });
     // End Initialize Socket.IO
 
-    // Initialize the cron jobs
+    // Initialize Cron Jobs
     await CronConfig.InitCronJobs(path.join(__dirname, 'app/crons'));
     CronConfig.startCronJobs();
 
-    // End Initialize the cron jobs
+    // End Initialize Cron Jobs
 
     // Start listening for HTTP requests
     httpServer.listen(port, () => {

@@ -12,3 +12,13 @@ export enum CronMonth {
     November = 'nov',
     December = 'dec',
 }
+
+export enum CronWeekday {
+    Sunday = 'sun',
+    Monday = 'mon',
+    Tuesday = 'tue',
+    Wednesday = 'wed',
+    Thursday = 'thu',
+    Friday = 'fri',
+    Saturday = 'sat',
+}

@@ -1,6 +1,6 @@
 import MasterController from '../utils/MasterController';
 import CronBuilder from '../utils/CronBuilder';
-import { CronWeekday } from '../enums/CronWeekday';
+import { CronWeekday } from '../enums/CronJob';
 
 class DemoCron extends MasterController<null, null, null> {
     cronController() {

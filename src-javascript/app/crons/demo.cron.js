@@ -1,6 +1,6 @@
 const MasterController = require('../utils/MasterController');
 const CronBuilder = require('../utils/CronBuilder');
-const { CronWeekday } = require('../enums/CronWeekday');
+const { CronWeekday } = require('../enums/CronJob');
 
 class DemoCron extends MasterController {
     cronController() {

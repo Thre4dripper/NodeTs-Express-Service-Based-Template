@@ -1,5 +1,4 @@
-const { CronMonth } = require('../enums/CronMonth');
-const { CronWeekday } = require('../enums/CronWeekday');
+const { CronMonth, CronWeekday } = require('../enums/CronJob');
 
 class CronBuilder {
     constructor() {

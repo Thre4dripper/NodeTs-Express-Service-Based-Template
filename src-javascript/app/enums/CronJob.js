@@ -13,4 +13,15 @@ const CronMonth = {
     December: 'dec',
 };
 
+const CronWeekday = {
+    Sunday: 'sun',
+    Monday: 'mon',
+    Tuesday: 'tue',
+    Wednesday: 'wed',
+    Thursday: 'thu',
+    Friday: 'fri',
+    Saturday: 'sat',
+};
+
 module.exports.CronMonth = CronMonth;
+module.exports.CronWeekday = CronWeekday;
