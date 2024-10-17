@@ -55,15 +55,29 @@ class SwaggerConfig {
     static swaggerDocsFromJoiSchema(validationRules) {
         let parameters = [];
         validationRules.payload.forEach((payload) => {
-            if (payload.type === PayloadType.PARAMS || payload.type === PayloadType.QUERY) {
+            if (payload.type === PayloadType.PARAMS) {
                 const schema = payload.schema;
                 const { swagger } = j2s(schema);
                 for (const key in swagger.properties) {
                     const property = swagger.properties[key];
                     const parameter = {
                         name: key,
-                        in: payload.type === PayloadType.PARAMS ? 'path' : 'query',
-                        required: swagger.required.includes(key),
+                        in: 'path',
+                        required: swagger.required?.includes(key) ?? false,
+                        type: property.type,
+                        format: property.format,
+                    };
+                    parameters.push(parameter);
+                }
+            } else if (payload.type === PayloadType.QUERY) {
+                const schema = payload.schema;
+                const { swagger } = j2s(schema);
+                for (const key in swagger.properties) {
+                    const property = swagger.properties[key];
+                    const parameter = {
+                        name: key,
+                        in: 'query',
+                        required: swagger.required?.includes(key) ?? false,
                         type: property.type,
                         format: property.format,
                     };

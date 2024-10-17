@@ -147,7 +147,7 @@ class SwaggerConfig {
                     const parameter: Parameter = {
                         name: key,
                         in: 'path',
-                        required: swagger.required.includes(key),
+                        required: swagger.required?.includes(key) ?? false,
                         type: property.type,
                         format: property.format,
                     };
@@ -161,7 +161,7 @@ class SwaggerConfig {
                     const parameter: Parameter = {
                         name: key,
                         in: 'query',
-                        required: swagger.required.includes(key),
+                        required: swagger.required?.includes(key) ?? false,
                         type: property.type,
                         format: property.format,
                     };
