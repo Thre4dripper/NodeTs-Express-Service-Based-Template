@@ -86,33 +86,30 @@ methods for efficient request handling, validation, and documentation generation
 
 ### Manual
 
-> Clone this repo to your local machine using `
+> #### Clone this repo to your local machine using `
 >
 > ```bash
 > $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
-
-### Server Setup
-
-> Install dependencies
+> #### Install dependencies
 >
 > ```bash
 > $ npm install or yarn
 > ```
 >
-> Start the server
+> #### Start the server
 >
 > ```bash
 > $ npm run dev or yarn dev
 > ```
 >
-> Build the project
+> #### Build the project
 >
 > ```bash
 > $ npm run build or yarn build
 > ```
 >
-> Run the project
+> #### Run the project
 >
 > ```bash
 > $ npm run start or yarn start
@@ -177,7 +174,170 @@ methods for efficient request handling, validation, and documentation generation
 > $ npm install mongoose
 > ```
 
-### Docker
+## Creating APIs
+
+### Controller
+
+```typescript
+class Controller extends MasterController<IParams, IQuery, IBody> {
+    // swagger documetation for the api
+    static doc() {
+        return {
+            tags: ['User'],
+            summary: 'Register User',
+            description: 'Register User',
+        };
+    }
+
+    // add your validations here,
+    // rest of the swagger documentation will be generated automatically from the validation
+    public static validate(): RequestBuilder {
+        const payload = new RequestBuilder();
+
+        // request body validation
+        payload.addToBody(
+            Joi.object().keys({
+                name: Joi.string().required(),
+                lastName: Joi.string().required(),
+                email: Joi.string().email().required(),
+                password: Joi.string().min(8).max(20).required(),
+            }),
+        );
+
+        // request query validation
+        payload.addToQuery(
+            Joi.object().keys({
+                limit: Joi.number().required(),
+                offset: Joi.number().required(),
+            }),
+        );
+
+        // request params validation
+        payload.addToParams(
+            Joi.object().keys({
+                id: Joi.number().required(),
+            }),
+        );
+        return payload;
+    }
+
+    // controller function
+    async restController(
+        params: IParams,
+        query: IQuery,
+        body: IBody,
+        headers: any,
+        allData: any): Promise<ResponseBuilder> {
+        // your code here
+        return new ResponseBuilder(200, Response, 'Success Message');
+    }
+
+    // socket controller function
+    socketController(io: Server, socket: Socket, payload: any): void {
+        // your code here
+        // Socket data will be available in payload, recieved from the client on socket event, which is setup in the route file
+        // You can emit data back to the client using io.emit or socket.emit
+    }
+
+    // cron controller function
+    cronController(): void {
+        // your scheduled code here (if any)
+    }
+}
+
+export default Controller;
+```
+
+#### Controller Generics
+
+- **IParams:** Request params interface/type
+- **IQuery:** Request query interface/type
+- **IBody:** Request body interface/type
+
+#### restController Parameters
+
+- **params:** Request params (eg. /user/:id)
+- **query:** Request query (eg. /user?limit=10&offset=0)
+- **body:** Request body
+- **headers:** Request headers
+- **allData:** All request data (all the above-combined + custom data from middlewares)
+
+#### socketController Parameters
+
+- **io:** Socket.io instance
+- **socket:** Socket instance
+- **payload:** Data sent from the client
+
+### Router File
+
+```typescript
+import express from 'express'
+import Controller from '../Controller'
+
+export default (app: express.Application) => {
+    // REST Routes
+    Controller.get(app, '/user/:id', [
+        /* Comma separated middlewares */
+    ])
+    Controller.post(app, '/user/:id', [
+        /* Comma separated middlewares */
+    ])
+    Controller.put(app, '/user/:id', [
+        /* Comma separated middlewares */
+    ])
+    Controller.delete(app, '/user/:id', [
+        /* Comma separated middlewares */
+    ])
+    Controller.patch(app, '/user/:id', [
+        /* Comma separated middlewares */
+    ])
+
+    // Socket Events
+    // Any payload you send from the client to this event will be available in the socketController function
+    Controller.socketIO('Event Name')
+}
+```
+
+> **Important**: Make sure to name your router file as `*.routes.ts` or `*.routes.js`
+
+> **Note:** You don't need to import your router file to anywhere,
+> put it in the routes directory, and it will be automatically
+> taken care by the package.
+
+### Cron File
+
+```typescript
+class DemoCron extends MasterController<null, null, null> {
+    cronController() {
+        console.log('Cron job is running');
+    }
+}
+
+// Unix Crontab format
+DemoCron.cronJob('*/5 * * * * *');
+
+// Using CronBuilder
+DemoCron.cronJob(
+    new CronBuilder()
+    .every()
+    .second()
+    .every()
+    .specificMinute([10, 20, 30])
+    .every()
+    .dayOfMonth(CronMonth.January)
+    .every()
+    .dayOfWeek(CronWeekday.Friday)
+    .build(),
+);
+```
+
+> **Important**: Make sure to name your cron file as `*.cron.ts` or `*.cron.js`
+
+> **Note:** You don't need to import your cron file to anywhere,
+> put it in cron directory, and it will be automatically
+> taken care by the package.
+
+## Docker
 
 > #### Docker Environment variables
 >
