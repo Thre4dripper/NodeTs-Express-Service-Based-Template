@@ -3,6 +3,6 @@ dist
 .gitignore
 .prettierignore
 .prettierrc
-Dockerfile
+*Dockerfile*
 LICENSE
 README.md

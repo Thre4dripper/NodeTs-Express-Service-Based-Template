@@ -26,7 +26,7 @@ export default [
             '**/*.yml',
             '**/*.json',
             '**/*.md',
-            '**/Dockerfile',
+            '**/*Dockerfile*',
             'docs/**/*.*',
         ],
     },

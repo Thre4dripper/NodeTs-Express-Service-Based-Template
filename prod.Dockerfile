@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY yarn.lock ./
 
 # Install app dependencies
-RUN yarn
+RUN yarn install --production=true
 
 # Copy source files
 COPY . .

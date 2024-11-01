@@ -26,7 +26,7 @@ class RegisterUserController extends MasterController {
         return payload;
     }
 
-    async restController(params, query, body, headers, allData) {
+    async restController(params, query, body, headers) {
         const { name, email, password } = body;
         const response = await userService.registerUser({ name, email, password });
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully');
