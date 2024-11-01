@@ -33,8 +33,7 @@ export default class RegisterUserController extends MasterController<null, null,
         params: null,
         query: null,
         body: IRegisterUser,
-        headers: any,
-        allData: any
+        headers: any
     ): Promise<ResponseBuilder> {
         const { name, email, password } = body;
 

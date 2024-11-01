@@ -119,19 +119,12 @@ class MasterController<P, Q, B> {
      * @param query - Query parameters from the request URL.
      * @param body - Body content from the request.
      * @param headers - Headers from the request.
-     * @param allData - Contains all data including params, query, body, headers, and custom data from middlewares.
      * @protected This method is protected and can only be accessed by the child class.
      * @returns {Promise<any>} Promise resolving to any value representing the response.
      */
-    async restController(
-        params: P,
-        query: Q,
-        body: B,
-        headers: any,
-        allData: any
-    ): Promise<ResponseBuilder> {
+    async restController(params: P, query: Q, body: B, headers: any): Promise<ResponseBuilder> {
         // Controller logic goes here
-        console.log(params, query, body, headers, allData);
+        console.log(params, query, body, headers);
         // Return a ResponseBuilder instance
         return new ResponseBuilder(200, null, 'Success');
     }
@@ -247,9 +240,6 @@ class MasterController<P, Q, B> {
             // Create a new instance of the current class
             const controller = new self();
 
-            // Combine all request data into a single object
-            const allData = { ...req.params, ...req.query, ...req.body, ...req.headers, ...req };
-
             // Retrieve validation rules using 'validate' method
             const validationRules = this.validate();
 
@@ -271,8 +261,7 @@ class MasterController<P, Q, B> {
                 req.params,
                 req.query,
                 req.body,
-                req.headers,
-                allData
+                req.headers
             );
 
             // Respond with the status and data from 'restController' method

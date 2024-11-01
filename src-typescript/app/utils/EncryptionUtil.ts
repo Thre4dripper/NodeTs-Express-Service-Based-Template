@@ -4,8 +4,8 @@ import * as jwt from 'jsonwebtoken';
 import { IAccessToken } from '../common/interfaces';
 
 export default class EncryptionUtil {
-    static async hashPassword(password: string, salt: number = 10) {
-        return await bcrypt.hash(password, salt);
+    static async hashPassword(password: string, rounds: number = 10) {
+        return await bcrypt.hash(password, rounds);
     }
 
     static async comparePassword(enteredPassword: string, dbPassword: string) {

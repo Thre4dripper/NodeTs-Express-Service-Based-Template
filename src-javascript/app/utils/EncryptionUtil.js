@@ -3,8 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 class EncryptionUtil {
-    static async hashPassword(password, salt = 10) {
-        return await bcrypt.hash(password, salt);
+    static async hashPassword(password, rounds = 10) {
+        return await bcrypt.hash(password, rounds);
     }
 
     static async comparePassword(enteredPassword, dbPassword) {

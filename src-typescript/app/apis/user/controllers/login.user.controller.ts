@@ -32,8 +32,7 @@ export default class LoginUserController extends MasterController<any, any, ILog
         params: null,
         query: null,
         body: ILoginUser,
-        headers: any,
-        allData: any
+        headers: any
     ): Promise<ResponseBuilder> {
         const { email, password } = body;
 
