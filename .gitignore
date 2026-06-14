@@ -1,5 +1,65 @@
-/.idea
-/node_modules
-/dist
-yarn-error.log
+# ── Dependencies ──
+node_modules/
+
+# ── Build output ──
+dist/
+
+# ── Auto-generated proto stubs (regenerated via postinstall / proto:build) ──
+src-typescript/proto/generated/
+src-javascript/proto/generated/
+
+# ── Environment ──
 .env
+.env.local
+.env.*.local
+
+# Keep the sample/env template (committed as example)
+!.env.sample
+!.env.example
+
+# ── Runtime ──
+pids/
+*.pid
+*.seed
+
+# ── Logs ──
+logs/
+*.log
+yarn-error.log
+pnpm-debug.log*
+
+# ── OS files ──
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ── IDE / Editor ──
+.idea/
+*.iml
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+*.sublime-workspace
+
+# ── TypeScript ──
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ── Testing / Coverage ──
+coverage/
+.nyc_output/
+
+# ── SSL / Keys (generated) ──
+keys/
+.envkeys/
+*.pem
+*.key
+*.csr
+*.crt
+!ssl/
+
+# ── Misc ──
+*.tgz
+.eslintcache
