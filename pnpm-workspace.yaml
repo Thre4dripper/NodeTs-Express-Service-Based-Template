@@ -1,0 +1,12 @@
+allowBuilds:
+  '@scarf/scarf': false
+  bcrypt: true
+  grpc-tools: true
+  protobufjs: false
+# pnpm settings. As of pnpm 10+, configuration lives here (the "pnpm" field in
+# package.json is no longer read). See https://pnpm.io/settings
+#
+# allowBuilds (pnpm v11+) controls which dependencies may run install/build scripts:
+#   - grpc-tools: postinstall downloads the bundled `protoc` used by `proto:build`
+#   - bcrypt:     builds its native addon
+#   - @scarf/scarf / protobufjs: telemetry/optional build steps — not needed

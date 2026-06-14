@@ -5,3 +5,9 @@
 .gitignore
 yarn.lock
 yarn-error.log
+
+# pnpm manages this file's formatting (auto-appends build approvals)
+pnpm-workspace.yaml
+
+# Generated TypeScript output from ts-proto (gitignored, regenerated on postinstall)
+**/proto/generated/

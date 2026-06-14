@@ -1,4 +1,4 @@
 {
-  "extends": "./nodemon-js.json",
-  "exec": "yarn lint && node src-javascript/server.js || exit 1"
+  "extends": "./nodemon.json",
+  "exec": "pnpm lint && node src-javascript/server.js || exit 1"
 }

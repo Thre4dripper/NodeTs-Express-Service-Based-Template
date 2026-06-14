@@ -1,4 +1,4 @@
 {
-  "extends": "./nodemon-ts.json",
-  "exec": "yarn build && yarn lint && node --harmony dist/server.js || exit 1"
+  "extends": "./nodemon.json",
+  "exec": "pnpm build && pnpm lint && node --harmony dist/server.js || exit 1"
 }
