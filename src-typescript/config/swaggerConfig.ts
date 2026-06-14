@@ -2,6 +2,9 @@ import MasterController from '../app/utils/MasterController';
 import RequestBuilder, { PayloadType } from '../app/utils/RequestBuilder';
 import j2s from 'joi-to-swagger';
 import * as fs from 'fs/promises';
+import { createLogger } from '../app/utils/Logger';
+
+const log = createLogger('swagger');
 
 export enum SwaggerMethod {
     GET = 'get',
@@ -207,7 +210,13 @@ class SwaggerConfig {
         pathObj[method] = methodObj;
         paths[key] = pathObj;
         this.swaggerDocument.paths = paths;
+    }
 
+    /**
+     * Write the assembled Swagger document to disk once, after all routes are recorded.
+     * Only persists when modifySwaggerDoc (typically dev-only) was enabled.
+     */
+    static finalizeSwagger() {
         if (this.swaggerModify) {
             this.modifySwaggerDocument();
         }
@@ -218,10 +227,10 @@ class SwaggerConfig {
             flag: 'w',
         })
             .then(() => {
-                console.log('Swagger document updated');
+                log.info('Swagger document updated');
             })
             .catch((err) => {
-                console.log('Error updating swagger document', err);
+                log.error({ err }, 'Error updating swagger document');
             });
     }
 
