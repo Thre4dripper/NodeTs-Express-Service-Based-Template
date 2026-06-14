@@ -4,6 +4,13 @@ import asyncHandler from './AsyncHandler';
 import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig';
 import ResponseBuilder from './ResponseBuilder';
 import { Server, Socket } from 'socket.io';
+import * as grpc from '@grpc/grpc-js';
+import Joi from 'joi';
+import { GrpcMiddleware, GrpcCallContext, executeGrpcMiddlewares } from './GrpcMiddleware';
+import { ValidationError, grpcCustomErrorHandler } from '../handlers/CustomErrorHandler';
+import { createLogger } from './Logger';
+
+const grpcLog = createLogger('grpc');
 
 interface IJoiErrors {
     query?: string[];
@@ -100,7 +107,7 @@ class MasterController<P, Q, B> {
      *        offset: Joi.number().required(),
      *    })
      * );
-     * payloadValidator.addToParams(
+     * payloadValidator.addToPath(
      *    Joi.object().keys({
      *        id: Joi.number().required(),
      *    })
@@ -131,7 +138,7 @@ class MasterController<P, Q, B> {
         allData: any
     ): Promise<ResponseBuilder> {
         // Controller logic goes here
-        console.log(params, query, body, headers, allData);
+        grpcLog.debug({ params, query, body, headers, allData }, 'restController');
         // Return a ResponseBuilder instance
         return new ResponseBuilder(200, null, 'Success');
     }
@@ -147,7 +154,7 @@ class MasterController<P, Q, B> {
      */
     socketController(io: Server, socket: Socket, payload: any): void {
         // Logic for handling socket events goes here
-        console.log(io, socket, payload);
+        grpcLog.debug({ payload, socketId: socket.id }, 'socketController');
     }
 
     /**
@@ -156,7 +163,241 @@ class MasterController<P, Q, B> {
      */
     cronController(): void {
         // Implement cron job logic here
-        console.log('Cron job executed');
+        grpcLog.info('Cron job executed');
+    }
+
+    // ─────────────────────────── gRPC controllers ───────────────────────────
+    // Override the one(s) you need in the child class. A single static rpc()
+    // facade (see below) dispatches to the right one based on the proto method's
+    // streaming kind, so controllers expose ONE gRPC method to the service map.
+
+    /**
+     * gRPC unary handler (single request → single response).
+     */
+    async grpcController(
+        request: any,
+        metadata: grpc.Metadata,
+        call: grpc.ServerUnaryCall<any, any>
+    ): Promise<ResponseBuilder> {
+        grpcLog.debug({ request, peer: call.getPeer() }, 'grpcController (unary)');
+        return new ResponseBuilder(200, null, 'Success');
+    }
+
+    /**
+     * gRPC server-streaming handler (single request → stream of responses).
+     * Write to `call` and return; the pipeline ends the stream.
+     */
+    async grpcServerStreamController(
+        request: any,
+        metadata: grpc.Metadata,
+        call: grpc.ServerWritableStream<any, any>
+    ): Promise<void> {
+        grpcLog.debug({ request, peer: call.getPeer() }, 'grpcServerStreamController');
+    }
+
+    /**
+     * gRPC client-streaming handler (stream of requests → single response).
+     * Receives all accumulated (and validated) chunks.
+     */
+    async grpcClientStreamController(
+        chunks: any[],
+        metadata: grpc.Metadata,
+        call: grpc.ServerReadableStream<any, any>
+    ): Promise<ResponseBuilder> {
+        grpcLog.debug({ count: chunks.length, peer: call.getPeer() }, 'grpcClientStreamController');
+        return new ResponseBuilder(200, null, 'Success');
+    }
+
+    /**
+     * gRPC bidirectional-streaming handler — called once per incoming chunk.
+     * Return a value (or array) to write back to the client, or nothing.
+     */
+    async grpcBidiStreamController(
+        chunk: any,
+        metadata: grpc.Metadata,
+        call: grpc.ServerDuplexStream<any, any>
+    ): Promise<any> {
+        grpcLog.debug({ chunk, peer: call.getPeer() }, 'grpcBidiStreamController');
+        return undefined;
+    }
+
+    /**
+     * @method MasterController.grpcValidate
+     * @description Validate a gRPC request message against the schema registered
+     * via `RequestBuilder.addToGrpcPayload()`. Throws ValidationError on failure.
+     */
+    private static grpcValidate(schema: Joi.ObjectSchema, request: any): any {
+        const { error, value } = schema.validate(request, {
+            abortEarly: false,
+            allowUnknown: true,
+        });
+        if (error) {
+            throw new ValidationError(error.details.map((d) => d.message).join(', '), 400);
+        }
+        return value;
+    }
+
+    /**
+     * @method MasterController.rpc
+     * @description THE single gRPC entry point for controllers. Returns a handler
+     * usable directly in `server.addService(Service, { method: Controller.rpc([...]) })`.
+     * It auto-detects the streaming kind of the call (unary / server / client / bidi)
+     * and dispatches to the matching internal strategy — so a controller exposes one
+     * method for all four patterns. Shared middleware + Joi validation run first.
+     */
+    static rpc(middlewares: GrpcMiddleware[] = []): any {
+        const self = this;
+
+        return (call: any, callback?: grpc.sendUnaryData<any>) => {
+            // Detection mirrors grpc-js dispatch:
+            //  - `call.request` is present for unary & server-streaming (single request msg)
+            //  - a `callback` is present for unary & client-streaming (single response msg)
+            const hasRequest = call && typeof call === 'object' && 'request' in call;
+            const hasCallback = typeof callback === 'function';
+
+            if (hasCallback && hasRequest) {
+                return self.unaryStrategy(middlewares, call, callback!);
+            }
+            if (hasCallback && !hasRequest) {
+                return self.clientStreamStrategy(middlewares, call, callback!);
+            }
+            if (!hasCallback && hasRequest) {
+                return self.serverStreamStrategy(middlewares, call);
+            }
+            return self.bidiStreamStrategy(middlewares, call);
+        };
+    }
+
+    // ── Internal strategies (ported 1:1 from the production handlers) ─────────
+
+    private static async unaryStrategy(
+        middlewares: GrpcMiddleware[],
+        call: grpc.ServerUnaryCall<any, any>,
+        callback: grpc.sendUnaryData<any>
+    ): Promise<void> {
+        const self = this;
+        try {
+            let request = call.request;
+            grpcLog.info({ method: call.getPath?.() ?? 'unary' }, 'gRPC request');
+
+            const ctx: GrpcCallContext = { request, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            if (schema) {
+                request = self.grpcValidate(schema, request);
+                ctx.request = request;
+            }
+
+            const controller = new self();
+            const result = await controller.grpcController(ctx.request, ctx.metadata, call);
+
+            if (result.response.status >= 200 && result.response.status < 300) {
+                callback(null, result.response.data);
+            } else {
+                callback(grpcCustomErrorHandler(result));
+            }
+        } catch (error) {
+            callback(grpcCustomErrorHandler(error));
+        }
+    }
+
+    private static async serverStreamStrategy(
+        middlewares: GrpcMiddleware[],
+        call: grpc.ServerWritableStream<any, any>
+    ): Promise<void> {
+        const self = this;
+        try {
+            let request = call.request;
+            const ctx: GrpcCallContext = { request, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            if (schema) {
+                request = self.grpcValidate(schema, request);
+                ctx.request = request;
+            }
+
+            const controller = new self();
+            await controller.grpcServerStreamController(ctx.request, ctx.metadata, call);
+            call.end();
+        } catch (error) {
+            call.emit('error', grpcCustomErrorHandler(error));
+        }
+    }
+
+    private static async clientStreamStrategy(
+        middlewares: GrpcMiddleware[],
+        call: grpc.ServerReadableStream<any, any>,
+        callback: grpc.sendUnaryData<any>
+    ): Promise<void> {
+        const self = this;
+        try {
+            const chunks: any[] = [];
+            await new Promise<void>((resolve, reject) => {
+                call.on('data', (chunk: any) => chunks.push(chunk));
+                call.on('end', () => resolve());
+                call.on('error', reject);
+            });
+
+            const ctx: GrpcCallContext = { request: chunks, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            const finalChunks = schema ? chunks.map((c) => self.grpcValidate(schema, c)) : chunks;
+
+            const controller = new self();
+            const result = await controller.grpcClientStreamController(
+                finalChunks,
+                ctx.metadata,
+                call
+            );
+
+            if (result.response.status >= 200 && result.response.status < 300) {
+                callback(null, result.response.data);
+            } else {
+                callback(grpcCustomErrorHandler(result));
+            }
+        } catch (error) {
+            callback(grpcCustomErrorHandler(error));
+        }
+    }
+
+    private static bidiStreamStrategy(
+        middlewares: GrpcMiddleware[],
+        call: grpc.ServerDuplexStream<any, any>
+    ): void {
+        const self = this;
+        const ctx: GrpcCallContext = { request: null, metadata: call.metadata, call };
+
+        executeGrpcMiddlewares(middlewares, ctx)
+            .then(() => {
+                const schema = self.validate().getGrpcSchema();
+
+                call.on('data', async (chunk: any) => {
+                    try {
+                        const validated = schema ? self.grpcValidate(schema, chunk) : chunk;
+                        const controller = new self();
+                        const result = await controller.grpcBidiStreamController(
+                            validated,
+                            ctx.metadata,
+                            call
+                        );
+                        if (result !== undefined && result !== null) {
+                            if (Array.isArray(result)) {
+                                result.forEach((item) => call.write(item));
+                            } else {
+                                call.write(result);
+                            }
+                        }
+                    } catch (error) {
+                        call.emit('error', grpcCustomErrorHandler(error));
+                    }
+                });
+
+                call.on('end', () => call.end());
+            })
+            .catch((error) => call.emit('error', grpcCustomErrorHandler(error)));
     }
 
     /**
