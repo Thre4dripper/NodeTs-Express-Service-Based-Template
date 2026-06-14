@@ -4,5 +4,4 @@ const LoginUserController = require('../apis/user/controllers/login.user.control
 module.exports = (app) => {
     RegisterUserController.post(app, '/api/v1/user/register/', []);
     LoginUserController.post(app, '/api/v1/user/login/', []);
-    RegisterUserController.socketIO('hello');
 };
