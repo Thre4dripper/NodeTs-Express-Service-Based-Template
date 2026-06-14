@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package user;
+
+import "shared/models.proto";
+
+// Demo User service — the gRPC mirror of the template's REST user demo
+// (register + login). Replicated locally so a freshly scaffolded service has a
+// working proto → controller example for all transports.
+
+message RegisterUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterUserResponse {
+  shared.User user = 1;
+  string message = 2;
+}
+
+message LoginUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginUserResponse {
+  shared.User user = 1;
+  string message = 2;
+}
+
+service UserRpc {
+  rpc register(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc login(LoginUserRequest) returns (LoginUserResponse);
+}

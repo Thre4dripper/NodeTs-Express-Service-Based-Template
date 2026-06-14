@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package shared;
+
+// Common reusable message shapes shared across services.
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+// Standard envelope mirroring the REST ResponseBuilder { status, message, data }.
+message Status {
+  int32 code = 1;
+  string message = 2;
+}

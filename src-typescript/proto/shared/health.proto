@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package shared;
+
+// Standard gRPC health check contract (mirrors grpc.health.v1 but self-contained).
+// The template's gRPC server implements all four streaming variants.
+
+message HealthCheckRequest {
+  string service = 1;
+}
+
+message HealthCheckResponse {
+  string status = 1; // "SERVING" | "NOT_SERVING"
+}
+
+service Health {
+  rpc unaryHealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc serverStreamingHealthCheck(HealthCheckRequest) returns (stream HealthCheckResponse);
+  rpc clientStreamingHealthCheck(stream HealthCheckRequest) returns (HealthCheckResponse);
+  rpc bidirectionalStreamingHealthCheck(stream HealthCheckRequest) returns (stream HealthCheckResponse);
+}
