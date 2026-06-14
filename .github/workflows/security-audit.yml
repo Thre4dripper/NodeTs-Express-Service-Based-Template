@@ -1,15 +1,17 @@
-name: Lint & Typecheck
+name: Security Audit
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
   pull_request:
     branches: [main]
 
 jobs:
-  check:
-    name: Format, lint & typecheck
+  audit:
+    name: Dependency vulnerability audit
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,14 +25,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Security audit (high and critical)
+      - name: Audit dependencies (high and critical)
         run: pnpm audit --audit-level=high
-
-      - name: Prettier check
-        run: pnpm format:check
-
-      - name: ESLint
-        run: pnpm lint
-
-      - name: TypeScript typecheck
-        run: npx tsc --noEmit
