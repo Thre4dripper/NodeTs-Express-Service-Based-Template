@@ -1,10 +1,13 @@
 import MasterController from '../../../utils/MasterController';
 import RequestBuilder from '../../../utils/RequestBuilder';
 import Joi from 'joi';
+import * as grpc from '@grpc/grpc-js';
 import { ILoginUser } from '../interfaces';
 import userService from '../services/user.service';
 import ResponseBuilder from '../../../utils/ResponseBuilder';
 import { StatusCodes } from '../../../enums/StatusCodes';
+// Generated from proto/user/user.proto via `pnpm proto:build` (gitignored, regenerated on postinstall).
+import { LoginUserResponse } from '@proto/generated/user/user';
 
 export default class LoginUserController extends MasterController<any, any, ILoginUser> {
     static doc() {
@@ -18,12 +21,13 @@ export default class LoginUserController extends MasterController<any, any, ILog
     public static validate() {
         const payload = new RequestBuilder();
 
-        payload.addToBody(
-            Joi.object().keys({
-                email: Joi.string().email().required(),
-                password: Joi.string().min(8).max(20).required(),
-            })
-        );
+        const schema = Joi.object().keys({
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).max(20).required(),
+        });
+
+        payload.addToBody(schema);
+        payload.addToGrpcPayload(schema);
 
         return payload;
     }
@@ -40,5 +44,26 @@ export default class LoginUserController extends MasterController<any, any, ILog
         const response = await userService.loginUser({ email, password });
 
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User logged in successfully');
+    }
+
+    async grpcController(request: ILoginUser, _metadata: grpc.Metadata): Promise<ResponseBuilder> {
+        const { email, password } = request;
+
+        const user = await userService.loginUser({ email, password });
+
+        const grpcResponse: LoginUserResponse = {
+            user: {
+                id: String((user as any).id ?? (user as any)._id ?? ''),
+                name: (user as any).name ?? '',
+                email,
+            },
+            message: 'ok',
+        };
+        const response = new ResponseBuilder(
+            StatusCodes.SUCCESS,
+            grpcResponse,
+            'User logged in successfully'
+        );
+        return response;
     }
 }
