@@ -1,10 +1,13 @@
 import MasterController from '../utils/MasterController';
 import CronBuilder from '../utils/CronBuilder';
 import { CronWeekday } from '../enums/CronJob';
+import { createLogger } from '../utils/Logger';
+
+const log = createLogger('cron');
 
 class DemoCron extends MasterController<null, null, null> {
     cronController() {
-        console.log('Cron job is running');
+        log.info('Cron job is running');
     }
 }
 

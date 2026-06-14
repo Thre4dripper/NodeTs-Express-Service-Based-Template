@@ -1,10 +1,13 @@
 const MasterController = require('../utils/MasterController');
 const CronBuilder = require('../utils/CronBuilder');
 const { CronWeekday } = require('../enums/CronJob');
+const { createLogger } = require('../utils/Logger');
+
+const log = createLogger('cron');
 
 class DemoCron extends MasterController {
     cronController() {
-        console.log('Cron job is running');
+        log.info('Cron job is running');
     }
 }
 
