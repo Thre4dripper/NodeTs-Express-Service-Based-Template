@@ -1,18 +1,38 @@
 const path = require('path');
 require('dotenv').config();
+const fs = require('fs');
 const { Op, Sequelize } = require('sequelize');
+const { createLogger } = require('../app/utils/Logger');
+
+const log = createLogger('sequelize');
+
+const buildSequelizeSsl = () => {
+    if ((process.env.DB_SSL || 'false').toLowerCase() !== 'true') {
+        return false;
+    }
+    const ssl = {
+        require: true,
+        rejectUnauthorized:
+            (process.env.DB_SSL_REJECT_UNAUTHORIZED || 'true').toLowerCase() !== 'false',
+    };
+    if (process.env.DB_SSL_CA_FILE) {
+        ssl.ca = fs.readFileSync(process.env.DB_SSL_CA_FILE, 'utf-8');
+    }
+    return ssl;
+};
+
 const sequelizeOptions = {
     database: process.env.DB_NAME,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
-    dialect: 'postgres',
+    dialect: process.env.DB_DIALECT || 'postgres',
     dialectOptions: {
-        ssl: false,
+        ssl: buildSequelizeSsl(),
     },
     models: [path.join(__dirname, '..', 'app', 'models')],
-    logging: console.log,
+    logging: (msg) => log.debug(msg),
     operatorsAliases: {
         $eq: Op.eq,
         $ne: Op.ne,
@@ -81,11 +101,11 @@ const sequelize = new Sequelize(sequelizeOptions);
 const sequelizeConnect = async () => {
     try {
         await sequelize.authenticate();
-        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.');
+        log.info('Database connected successfully');
         await sequelize.sync({ alter: false });
-        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.');
+        log.info('Database synced successfully');
     } catch (err) {
-        console.error('Unable to connect to the database:', err);
+        log.error({ err }, 'Unable to connect to the database');
         throw err;
     }
 };
