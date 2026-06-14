@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
-const joiErrorHandler = require('../app/handlers/JoiErrorHandler');
-const customErrorHandler = require('../app/handlers/CustomErrorHandler');
+const pinoHttp = require('pino-http');
+const { RestJoiErrorHandler } = require('../app/handlers/JoiErrorHandler');
+const { RestCustomErrorHandler } = require('../app/handlers/CustomErrorHandler');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('../app/utils/Logger');
 // start swagger import
 const swaggerUI = require('swagger-ui-express');
 const { default: SwaggerConfig } = require('./swaggerConfig');
@@ -15,7 +16,13 @@ const server = async () => {
     app.use(express.static('public'));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+
+    // Health check (kept above the request logger so it doesn't spam logs)
+    app.get('/health', (_req, res) => {
+        res.status(200).type('text/plain').send('OK');
+    });
+
+    app.use(pinoHttp({ logger }));
     app.use(
         cors({
             origin: '*',
@@ -89,21 +96,28 @@ const server = async () => {
     };
 
     // start swagger config
+    const env = (process.env.NODE_ENV || 'development').toLowerCase();
+    const isDev = env === 'development' || env === 'dev' || env === 'local';
+
     SwaggerConfig.initSwagger({
         title: 'Node Swagger API',
         description: 'Demonstrating how to describe a RESTful API with Swagger',
         version: '1.0.0',
         swaggerDocPath: path.join(__dirname, '../../swagger.json'),
-        modifySwaggerDoc: false,
+        modifySwaggerDoc: isDev,
     });
     // end swagger config
 
     await loadRouters(path.join(__dirname, '../app/routes'));
 
-    app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()));
+    // Swagger UI + on-disk doc generation are development-only.
+    if (isDev) {
+        SwaggerConfig.finalizeSwagger();
+        app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()));
+    }
 
-    app.use(joiErrorHandler, customErrorHandler, (err, _req, res, _next) => {
-        console.error(err); // Log the error for debugging
+    app.use(RestJoiErrorHandler, RestCustomErrorHandler, (err, _req, res, _next) => {
+        logger.error({ err }, 'Unhandled error');
         return res.status(500).json({ error: 'Internal Server Error' }); // Respond with a 500 Internal Server Error
     });
 
