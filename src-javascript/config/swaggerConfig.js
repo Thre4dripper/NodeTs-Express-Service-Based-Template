@@ -1,6 +1,9 @@
 const { PayloadType } = require('../app/utils/RequestBuilder');
 const j2s = require('joi-to-swagger');
 const fs = require('fs').promises;
+const { createLogger } = require('../app/utils/Logger');
+
+const log = createLogger('swagger');
 
 const SwaggerMethod = {
     GET: 'get',
@@ -118,6 +121,9 @@ class SwaggerConfig {
         pathObj[method] = methodObj;
         paths[key] = pathObj;
         this.swaggerDocument.paths = paths;
+    }
+
+    static finalizeSwagger() {
         if (this.swaggerModify) {
             this.modifySwaggerDocument();
         }
@@ -128,10 +134,10 @@ class SwaggerConfig {
             flag: 'w',
         })
             .then(() => {
-                console.log('Swagger document updated');
+                log.info('Swagger document updated');
             })
             .catch((err) => {
-                console.log('Error updating swagger document', err);
+                log.error({ err }, 'Error updating swagger document');
             });
     }
 
