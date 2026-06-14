@@ -1,8 +1,34 @@
 import * as path from 'path';
 
 require('dotenv').config();
-import { Op } from 'sequelize';
+import * as fs from 'fs';
+import { Op, Dialect } from 'sequelize';
 import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
+import { createLogger } from '../app/utils/Logger';
+
+const log = createLogger('sequelize');
+
+/**
+ * Build env-driven SSL config for Sequelize dialects.
+ * Enable with DB_SSL=true; DB_SSL_REJECT_UNAUTHORIZED=false allows self-signed;
+ * DB_SSL_CA_FILE points at a CA bundle (PEM).
+ */
+const buildSequelizeSsl = ():
+    | boolean
+    | { require: boolean; rejectUnauthorized: boolean; ca?: string } => {
+    if ((process.env.DB_SSL || 'false').toLowerCase() !== 'true') {
+        return false;
+    }
+    const ssl: { require: boolean; rejectUnauthorized: boolean; ca?: string } = {
+        require: true,
+        rejectUnauthorized:
+            (process.env.DB_SSL_REJECT_UNAUTHORIZED || 'true').toLowerCase() !== 'false',
+    };
+    if (process.env.DB_SSL_CA_FILE) {
+        ssl.ca = fs.readFileSync(process.env.DB_SSL_CA_FILE, 'utf-8');
+    }
+    return ssl;
+};
 
 const sequelizeOptions: SequelizeOptions = {
     database: process.env.DB_NAME,
@@ -10,12 +36,12 @@ const sequelizeOptions: SequelizeOptions = {
     password: process.env.DB_PASS,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
-    dialect: 'postgres',
+    dialect: (process.env.DB_DIALECT as Dialect) || 'postgres',
     dialectOptions: {
-        ssl: false,
+        ssl: buildSequelizeSsl(),
     },
     models: [path.join(__dirname, '..', 'app', 'models')],
-    logging: console.log,
+    logging: (msg) => log.debug(msg),
     operatorsAliases: {
         $eq: Op.eq,
         $ne: Op.ne,
@@ -85,11 +111,11 @@ export const sequelize = new Sequelize(sequelizeOptions);
 export const sequelizeConnect = async () => {
     try {
         await sequelize.authenticate();
-        console.log('\x1b[32m%s\x1b[0m', 'Database Connected successfully.');
+        log.info('Database connected successfully');
         await sequelize.sync({ alter: false });
-        console.log('\x1b[32m%s\x1b[0m', 'Database Synced successfully.');
+        log.info('Database synced successfully');
     } catch (err) {
-        console.error('Unable to connect to the database:', err);
+        log.error({ err }, 'Unable to connect to the database');
         throw err;
     }
 };
