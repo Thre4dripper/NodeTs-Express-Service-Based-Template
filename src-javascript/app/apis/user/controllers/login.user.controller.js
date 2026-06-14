@@ -16,12 +16,12 @@ class LoginUserController extends MasterController {
 
     static validate() {
         const payload = new RequestBuilder();
-        payload.addToBody(
-            Joi.object().keys({
-                email: Joi.string().email().required(),
-                password: Joi.string().min(8).max(20).required(),
-            })
-        );
+        const schema = Joi.object().keys({
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).max(20).required(),
+        });
+        payload.addToBody(schema);
+        payload.addToGrpcPayload(schema);
         return payload;
     }
 
@@ -29,6 +29,20 @@ class LoginUserController extends MasterController {
         const { email, password } = body;
         const response = await userService.loginUser({ email, password });
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User logged in successfully');
+    }
+
+    async grpcController(request) {
+        const { email, password } = request;
+        const user = await userService.loginUser({ email, password });
+        const response = new ResponseBuilder(
+            StatusCodes.SUCCESS,
+            {
+                user: { id: String(user.id || user._id || ''), name: user.name || '', email },
+                message: 'ok',
+            },
+            'User logged in successfully'
+        );
+        return response;
     }
 }
 

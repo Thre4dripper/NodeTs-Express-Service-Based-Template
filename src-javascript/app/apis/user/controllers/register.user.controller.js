@@ -1,3 +1,18 @@
+/**
+ * CALLING A REMOTE gRPC SERVICE — example pattern (not wired by default).
+ *
+ * When this service needs to call another gRPC service (e.g. a remote profile
+ * service), use the generic factory from `app/common/grpc.client.js`:
+ *
+ *   const getRpcClient = require('../../common/grpc.client');
+ *   const GrpcClientFactory = require('../../../utils/GrpcClientFactory');
+ *   // ProfileRpcClient is generated from proto stubs via `pnpm proto:build`
+ *   const { ProfileRpcClient } = require('../../../../proto/generated/profile/profile');
+ *
+ *   // Env: REMOTE_SERVICE_GRPC_ADDRESS=profile-service:50051
+ *   const client = getRpcClient('profileService', ProfileRpcClient, 'REMOTE_SERVICE_GRPC_ADDRESS');
+ *   const profile = await GrpcClientFactory.unary(client, 'getProfile', { userId: user.id });
+ */
 const MasterController = require('../../../utils/MasterController');
 const { StatusCodes } = require('../../../enums/StatusCodes');
 const ResponseBuilder = require('../../../utils/ResponseBuilder');
@@ -16,13 +31,13 @@ class RegisterUserController extends MasterController {
 
     static validate() {
         const payload = new RequestBuilder();
-        payload.addToBody(
-            Joi.object().keys({
-                name: Joi.string().required(),
-                email: Joi.string().email().required(),
-                password: Joi.string().min(8).max(20).required(),
-            })
-        );
+        const schema = Joi.object().keys({
+            name: Joi.string().required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().min(8).max(20).required(),
+        });
+        payload.addToBody(schema);
+        payload.addToGrpcPayload(schema);
         return payload;
     }
 
@@ -30,6 +45,17 @@ class RegisterUserController extends MasterController {
         const { name, email, password } = body;
         const response = await userService.registerUser({ name, email, password });
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully');
+    }
+
+    async grpcController(request) {
+        const { name, email, password } = request;
+        const user = await userService.registerUser({ name, email, password });
+        const response = new ResponseBuilder(
+            StatusCodes.SUCCESS,
+            { user: { id: String(user.id || user._id || ''), name, email }, message: 'ok' },
+            'User registered successfully'
+        );
+        return response;
     }
 }
 
