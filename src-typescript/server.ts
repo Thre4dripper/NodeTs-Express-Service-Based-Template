@@ -5,11 +5,16 @@ import { mongooseConnect } from './config/mongooseConfig';
 import { sequelizeConnect } from './config/sequelizeConfig';
 import SocketConfig from './config/socketConfig';
 import CronConfig from './config/cronConfig';
+import { buildGrpcServer, startGrpcServer } from './config/grpcConfig';
+import { redisConnect, redisDisconnect } from './app/common/redis.client';
+import { GrpcClientFactory } from './app/utils/GrpcClientFactory';
+import logger from './app/utils/Logger';
 import * as path from 'node:path';
 
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
+const grpcPort = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 50051;
 (async () => {
     const app = await serverConfig();
 
@@ -46,7 +51,7 @@ const port = process.env.PORT || 3000;
         try {
             await sequelizeConnect();
         } catch (err) {
-            console.error('Unable to connect to the database:', err);
+            logger.error({ err }, 'Unable to connect to the database');
             throw err;
         }
     }
@@ -56,16 +61,28 @@ const port = process.env.PORT || 3000;
         try {
             await mongooseConnect();
         } catch (err) {
-            console.error('Unable to connect to the database:', err);
+            logger.error({ err }, 'Unable to connect to the database');
             throw err;
         }
     }
     // end if mongoose dialect check
+
+    // Connect to Redis (optional — remove this block if the service doesn't need it)
+    try {
+        await redisConnect();
+    } catch (err) {
+        logger.error({ err }, 'Unable to connect to Redis');
+        throw err;
+    }
+
     // Create an HTTP server instance
     const httpServer = http.createServer(app);
 
     // Initialize Socket.IO with the HTTP server
     const io = SocketConfig.init(httpServer);
+
+    // Load socket modules (app/sockets/*.socket.ts) so controllers self-register events
+    await SocketConfig.InitSocketModules(path.join(__dirname, 'app/sockets'));
 
     io.on('connection', (socket) => {
         SocketConfig.socketListener(io, socket);
@@ -85,6 +102,29 @@ const port = process.env.PORT || 3000;
 
     // Start listening for HTTP requests
     httpServer.listen(port, () => {
-        console.log(`Server is listening on port ${port}`);
+        logger.info(`Server is listening on port ${port}`);
     });
+
+    // Start gRPC server
+    try {
+        const grpcServer = await buildGrpcServer();
+        await startGrpcServer(grpcServer, grpcPort);
+    } catch (err) {
+        logger.error({ err }, 'Failed to start gRPC server');
+    }
+
+    // Graceful shutdown — close gRPC clients and Redis before exiting.
+    const shutdown = async (signal: string) => {
+        logger.info(`${signal} received — shutting down gracefully...`);
+        try {
+            GrpcClientFactory.closeAllClients();
+            await redisDisconnect();
+        } catch (err) {
+            logger.error({ err }, 'Error during shutdown');
+        }
+        process.exit(0);
+    };
+
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
 })();
