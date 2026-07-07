@@ -1,5 +1,7 @@
 const Joi = require('joi');
+// start grpc
 const grpc = require('@grpc/grpc-js');
+// end grpc
 const { createLogger } = require('../utils/Logger');
 
 const log = createLogger('error');
@@ -17,6 +19,7 @@ class JoiErrorHandler {
         return next(err);
     };
 
+    // start grpc
     static grpc = (err) => {
         if (err instanceof Joi.ValidationError) {
             const message = formatJoi(err);
@@ -30,7 +33,9 @@ class JoiErrorHandler {
         }
         return null;
     };
+    // end grpc
 
+    // start socket
     static socket = (err, socket) => {
         if (err instanceof Joi.ValidationError) {
             socket.emit('error', { message: formatJoi(err) });
@@ -38,7 +43,9 @@ class JoiErrorHandler {
         }
         return false;
     };
+    // end socket
 
+    // start cron
     static cron = (err, jobName = 'cron') => {
         if (err instanceof Joi.ValidationError) {
             log.error({ err: formatJoi(err), job: jobName }, 'Cron validation error');
@@ -46,14 +53,23 @@ class JoiErrorHandler {
         }
         return false;
     };
+    // end cron
 }
 
 module.exports = JoiErrorHandler.rest;
 module.exports.default = JoiErrorHandler.rest;
 module.exports.JoiErrorHandler = JoiErrorHandler;
 module.exports.RestJoiErrorHandler = JoiErrorHandler.rest;
+// start grpc
 module.exports.GrpcJoiErrorHandler = JoiErrorHandler.grpc;
+// end grpc
+// start socket
 module.exports.SocketJoiErrorHandler = JoiErrorHandler.socket;
+// end socket
+// start cron
 module.exports.CronJoiErrorHandler = JoiErrorHandler.cron;
+// end cron
 module.exports.joiErrorHandler = JoiErrorHandler.rest;
+// start grpc
 module.exports.grpcJoiErrorHandler = JoiErrorHandler.grpc;
+// end grpc

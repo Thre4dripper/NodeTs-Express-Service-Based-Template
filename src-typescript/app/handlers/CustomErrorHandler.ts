@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
+// start grpc
 import * as grpc from '@grpc/grpc-js';
+// end grpc
+// start socket
 import { Socket } from 'socket.io';
+// end socket
 import { StatusCodes } from '../enums/StatusCodes';
 import { createLogger } from '../utils/Logger';
 
@@ -20,6 +24,7 @@ export class ValidationError extends Error {
     }
 }
 
+// start grpc
 /**
  * Map an HTTP status code to the closest gRPC status code.
  */
@@ -38,6 +43,7 @@ export const httpToGrpcStatus = (httpStatus: number): grpc.status => {
     };
     return map[httpStatus] ?? grpc.status.UNKNOWN;
 };
+// end grpc
 
 /**
  * A single error handler exposing one entry point per transport: rest, grpc, socket, cron.
@@ -53,6 +59,7 @@ export class CustomErrorHandler {
         return next(err);
     };
 
+    // start grpc
     /** Convert an application error (ValidationError / ResponseBuilder / Error) to a gRPC ServiceError. */
     static grpc = (err: any): grpc.ServiceError => {
         // Already a gRPC ServiceError
@@ -98,7 +105,9 @@ export class CustomErrorHandler {
             metadata: new grpc.Metadata(),
         };
     };
+    // end grpc
 
+    // start socket
     /** Emit an error to a connected socket client. */
     static socket = (err: any, socket: Socket) => {
         log.error({ err: err?.message }, 'Socket error');
@@ -106,22 +115,33 @@ export class CustomErrorHandler {
             message: err?.message || 'Internal server error',
         });
     };
+    // end socket
 
+    // start cron
     /** Handle a cron error: log it and swallow so the scheduler keeps running. */
     static cron = (err: any, jobName = 'cron') => {
         log.error({ err: err?.message, job: jobName }, 'Cron job error');
     };
+    // end cron
 }
 
 // ─── Named exports (Rest-prefixed + transport-specific + legacy aliases) ────────
 export const RestCustomErrorHandler = CustomErrorHandler.rest;
+// start grpc
 export const GrpcCustomErrorHandler = CustomErrorHandler.grpc;
+// end grpc
+// start socket
 export const SocketCustomErrorHandler = CustomErrorHandler.socket;
+// end socket
+// start cron
 export const CronCustomErrorHandler = CustomErrorHandler.cron;
+// end cron
 
 /** @deprecated use RestCustomErrorHandler */
 export const customErrorHandler = CustomErrorHandler.rest;
+// start grpc
 /** Convert an error to a gRPC ServiceError. */
 export const grpcCustomErrorHandler = CustomErrorHandler.grpc;
+// end grpc
 
 export default CustomErrorHandler.rest;

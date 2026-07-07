@@ -1,4 +1,6 @@
+// start grpc
 const grpc = require('@grpc/grpc-js');
+// end grpc
 const { StatusCodes } = require('../enums/StatusCodes');
 const { createLogger } = require('../utils/Logger');
 
@@ -12,6 +14,7 @@ class ValidationError extends Error {
     }
 }
 
+// start grpc
 const httpToGrpcStatus = (httpStatus) => {
     const map = {
         200: grpc.status.OK,
@@ -27,6 +30,7 @@ const httpToGrpcStatus = (httpStatus) => {
     };
     return map[httpStatus] !== undefined ? map[httpStatus] : grpc.status.UNKNOWN;
 };
+// end grpc
 
 /**
  * A single error handler exposing one entry point per transport: rest, grpc, socket, cron.
@@ -41,6 +45,7 @@ class CustomErrorHandler {
         return next(err);
     };
 
+    // start grpc
     static grpc = (err) => {
         if (
             err &&
@@ -78,25 +83,40 @@ class CustomErrorHandler {
             metadata: new grpc.Metadata(),
         };
     };
+    // end grpc
 
+    // start socket
     static socket = (err, socket) => {
         log.error({ err: err && err.message }, 'Socket error');
         socket.emit('error', { message: (err && err.message) || 'Internal server error' });
     };
+    // end socket
 
+    // start cron
     static cron = (err, jobName = 'cron') => {
         log.error({ err: err && err.message, job: jobName }, 'Cron job error');
     };
+    // end cron
 }
 
 module.exports = CustomErrorHandler.rest;
 module.exports.default = CustomErrorHandler.rest;
 module.exports.CustomErrorHandler = CustomErrorHandler;
 module.exports.ValidationError = ValidationError;
+// start grpc
 module.exports.httpToGrpcStatus = httpToGrpcStatus;
+// end grpc
 module.exports.RestCustomErrorHandler = CustomErrorHandler.rest;
+// start grpc
 module.exports.GrpcCustomErrorHandler = CustomErrorHandler.grpc;
+// end grpc
+// start socket
 module.exports.SocketCustomErrorHandler = CustomErrorHandler.socket;
+// end socket
+// start cron
 module.exports.CronCustomErrorHandler = CustomErrorHandler.cron;
+// end cron
 module.exports.customErrorHandler = CustomErrorHandler.rest;
+// start grpc
 module.exports.grpcCustomErrorHandler = CustomErrorHandler.grpc;
+// end grpc
