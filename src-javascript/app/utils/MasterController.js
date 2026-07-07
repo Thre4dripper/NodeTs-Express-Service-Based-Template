@@ -146,185 +146,6 @@ class MasterController {
     }
     // end cron controller method
 
-    // start grpc controllers
-    // ─────────────────────────── gRPC controllers ───────────────────────────
-    // Override the one(s) you need. The single static rpc() facade dispatches to
-    // the matching one based on the proto method's streaming kind.
-
-    /** gRPC unary handler (single request → single response). */
-    async grpcController(request, metadata, call) {
-        logger.debug({ request }, 'grpcController (unary)');
-        return new ResponseBuilder(200, null, 'Success');
-    }
-
-    /** gRPC server-streaming handler (single request → stream of responses). */
-    async grpcServerStreamController(request, metadata, call) {
-        logger.debug({ request }, 'grpcServerStreamController');
-    }
-
-    /** gRPC client-streaming handler (stream of requests → single response). */
-    async grpcClientStreamController(chunks, metadata, call) {
-        logger.debug({ count: chunks.length }, 'grpcClientStreamController');
-        return new ResponseBuilder(200, null, 'Success');
-    }
-
-    /** gRPC bidirectional-streaming handler — called once per incoming chunk. */
-    async grpcBidiStreamController(chunk, metadata, call) {
-        logger.debug({ chunk }, 'grpcBidiStreamController');
-        return undefined;
-    }
-
-    /**
-     * Validate a gRPC request message against the schema registered via
-     * RequestBuilder.addToGrpcPayload(). Throws ValidationError on failure.
-     */
-    static grpcValidate(schema, request) {
-        const { error, value } = schema.validate(request, {
-            abortEarly: false,
-            allowUnknown: true,
-        });
-        if (error) {
-            throw new ValidationError(error.details.map((d) => d.message).join(', '), 400);
-        }
-        return value;
-    }
-
-    /**
-     * @method MasterController.rpc
-     * @description THE single gRPC entry point for controllers. Returns a handler
-     * usable directly in server.addService(). Auto-detects the streaming kind
-     * (unary / server / client / bidi) and dispatches to the matching strategy.
-     */
-    static rpc(middlewares = []) {
-        const self = this;
-        return (call, callback) => {
-            const hasRequest = call && typeof call === 'object' && 'request' in call;
-            const hasCallback = typeof callback === 'function';
-
-            if (hasCallback && hasRequest) {
-                return self.unaryStrategy(middlewares, call, callback);
-            }
-            if (hasCallback && !hasRequest) {
-                return self.clientStreamStrategy(middlewares, call, callback);
-            }
-            if (!hasCallback && hasRequest) {
-                return self.serverStreamStrategy(middlewares, call);
-            }
-            return self.bidiStreamStrategy(middlewares, call);
-        };
-    }
-
-    static async unaryStrategy(middlewares, call, callback) {
-        const self = this;
-        try {
-            let request = call.request;
-            logger.info({ method: call.getPath ? call.getPath() : 'unary' }, 'gRPC request');
-            const ctx = { request, metadata: call.metadata, call };
-            await executeGrpcMiddlewares(middlewares, ctx);
-
-            const schema = self.validate().getGrpcSchema();
-            if (schema) {
-                request = self.grpcValidate(schema, request);
-                ctx.request = request;
-            }
-
-            const controller = new self();
-            const result = await controller.grpcController(ctx.request, ctx.metadata, call);
-            if (result.response.status >= 200 && result.response.status < 300) {
-                callback(null, result.response.data);
-            } else {
-                callback(grpcCustomErrorHandler(result));
-            }
-        } catch (error) {
-            callback(grpcCustomErrorHandler(error));
-        }
-    }
-
-    static async serverStreamStrategy(middlewares, call) {
-        const self = this;
-        try {
-            let request = call.request;
-            const ctx = { request, metadata: call.metadata, call };
-            await executeGrpcMiddlewares(middlewares, ctx);
-
-            const schema = self.validate().getGrpcSchema();
-            if (schema) {
-                request = self.grpcValidate(schema, request);
-                ctx.request = request;
-            }
-
-            const controller = new self();
-            await controller.grpcServerStreamController(ctx.request, ctx.metadata, call);
-            call.end();
-        } catch (error) {
-            call.emit('error', grpcCustomErrorHandler(error));
-        }
-    }
-
-    static async clientStreamStrategy(middlewares, call, callback) {
-        const self = this;
-        try {
-            const chunks = [];
-            await new Promise((resolve, reject) => {
-                call.on('data', (chunk) => chunks.push(chunk));
-                call.on('end', () => resolve());
-                call.on('error', reject);
-            });
-
-            const ctx = { request: chunks, metadata: call.metadata, call };
-            await executeGrpcMiddlewares(middlewares, ctx);
-
-            const schema = self.validate().getGrpcSchema();
-            const finalChunks = schema ? chunks.map((c) => self.grpcValidate(schema, c)) : chunks;
-
-            const controller = new self();
-            const result = await controller.grpcClientStreamController(
-                finalChunks,
-                ctx.metadata,
-                call
-            );
-            if (result.response.status >= 200 && result.response.status < 300) {
-                callback(null, result.response.data);
-            } else {
-                callback(grpcCustomErrorHandler(result));
-            }
-        } catch (error) {
-            callback(grpcCustomErrorHandler(error));
-        }
-    }
-
-    static bidiStreamStrategy(middlewares, call) {
-        const self = this;
-        const ctx = { request: null, metadata: call.metadata, call };
-        executeGrpcMiddlewares(middlewares, ctx)
-            .then(() => {
-                const schema = self.validate().getGrpcSchema();
-                call.on('data', async (chunk) => {
-                    try {
-                        const validated = schema ? self.grpcValidate(schema, chunk) : chunk;
-                        const controller = new self();
-                        const result = await controller.grpcBidiStreamController(
-                            validated,
-                            ctx.metadata,
-                            call
-                        );
-                        if (result !== undefined && result !== null) {
-                            if (Array.isArray(result)) {
-                                result.forEach((item) => call.write(item));
-                            } else {
-                                call.write(result);
-                            }
-                        }
-                    } catch (error) {
-                        call.emit('error', grpcCustomErrorHandler(error));
-                    }
-                });
-                call.on('end', () => call.end());
-            })
-            .catch((error) => call.emit('error', grpcCustomErrorHandler(error)));
-    }
-    // end grpc controllers
-
     /**
      * @method MasterController.joiValidator
      * @description Validates the request payload based on provided validation rules.
@@ -511,6 +332,185 @@ class MasterController {
     static cronJob(cronPattern) {
         this.cronRequests.push({ cronPattern, masterController: new this() });
     }
+
+    // start grpc controllers
+    // ─────────────────────────── gRPC controllers ───────────────────────────
+    // Override the one(s) you need. The single static rpc() facade dispatches to
+    // the matching one based on the proto method's streaming kind.
+
+    /** gRPC unary handler (single request → single response). */
+    async grpcController(request, metadata, call) {
+        logger.debug({ request }, 'grpcController (unary)');
+        return new ResponseBuilder(200, null, 'Success');
+    }
+
+    /** gRPC server-streaming handler (single request → stream of responses). */
+    async grpcServerStreamController(request, metadata, call) {
+        logger.debug({ request }, 'grpcServerStreamController');
+    }
+
+    /** gRPC client-streaming handler (stream of requests → single response). */
+    async grpcClientStreamController(chunks, metadata, call) {
+        logger.debug({ count: chunks.length }, 'grpcClientStreamController');
+        return new ResponseBuilder(200, null, 'Success');
+    }
+
+    /** gRPC bidirectional-streaming handler — called once per incoming chunk. */
+    async grpcBidiStreamController(chunk, metadata, call) {
+        logger.debug({ chunk }, 'grpcBidiStreamController');
+        return undefined;
+    }
+
+    /**
+     * Validate a gRPC request message against the schema registered via
+     * RequestBuilder.addToGrpcPayload(). Throws ValidationError on failure.
+     */
+    static grpcValidate(schema, request) {
+        const { error, value } = schema.validate(request, {
+            abortEarly: false,
+            allowUnknown: true,
+        });
+        if (error) {
+            throw new ValidationError(error.details.map((d) => d.message).join(', '), 400);
+        }
+        return value;
+    }
+
+    /**
+     * @method MasterController.rpc
+     * @description THE single gRPC entry point for controllers. Returns a handler
+     * usable directly in server.addService(). Auto-detects the streaming kind
+     * (unary / server / client / bidi) and dispatches to the matching strategy.
+     */
+    static rpc(middlewares = []) {
+        const self = this;
+        return (call, callback) => {
+            const hasRequest = call && typeof call === 'object' && 'request' in call;
+            const hasCallback = typeof callback === 'function';
+
+            if (hasCallback && hasRequest) {
+                return self.unaryStrategy(middlewares, call, callback);
+            }
+            if (hasCallback && !hasRequest) {
+                return self.clientStreamStrategy(middlewares, call, callback);
+            }
+            if (!hasCallback && hasRequest) {
+                return self.serverStreamStrategy(middlewares, call);
+            }
+            return self.bidiStreamStrategy(middlewares, call);
+        };
+    }
+
+    static async unaryStrategy(middlewares, call, callback) {
+        const self = this;
+        try {
+            let request = call.request;
+            logger.info({ method: call.getPath ? call.getPath() : 'unary' }, 'gRPC request');
+            const ctx = { request, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            if (schema) {
+                request = self.grpcValidate(schema, request);
+                ctx.request = request;
+            }
+
+            const controller = new self();
+            const result = await controller.grpcController(ctx.request, ctx.metadata, call);
+            if (result.response.status >= 200 && result.response.status < 300) {
+                callback(null, result.response.data);
+            } else {
+                callback(grpcCustomErrorHandler(result));
+            }
+        } catch (error) {
+            callback(grpcCustomErrorHandler(error));
+        }
+    }
+
+    static async serverStreamStrategy(middlewares, call) {
+        const self = this;
+        try {
+            let request = call.request;
+            const ctx = { request, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            if (schema) {
+                request = self.grpcValidate(schema, request);
+                ctx.request = request;
+            }
+
+            const controller = new self();
+            await controller.grpcServerStreamController(ctx.request, ctx.metadata, call);
+            call.end();
+        } catch (error) {
+            call.emit('error', grpcCustomErrorHandler(error));
+        }
+    }
+
+    static async clientStreamStrategy(middlewares, call, callback) {
+        const self = this;
+        try {
+            const chunks = [];
+            await new Promise((resolve, reject) => {
+                call.on('data', (chunk) => chunks.push(chunk));
+                call.on('end', () => resolve());
+                call.on('error', reject);
+            });
+
+            const ctx = { request: chunks, metadata: call.metadata, call };
+            await executeGrpcMiddlewares(middlewares, ctx);
+
+            const schema = self.validate().getGrpcSchema();
+            const finalChunks = schema ? chunks.map((c) => self.grpcValidate(schema, c)) : chunks;
+
+            const controller = new self();
+            const result = await controller.grpcClientStreamController(
+                finalChunks,
+                ctx.metadata,
+                call
+            );
+            if (result.response.status >= 200 && result.response.status < 300) {
+                callback(null, result.response.data);
+            } else {
+                callback(grpcCustomErrorHandler(result));
+            }
+        } catch (error) {
+            callback(grpcCustomErrorHandler(error));
+        }
+    }
+
+    static bidiStreamStrategy(middlewares, call) {
+        const self = this;
+        const ctx = { request: null, metadata: call.metadata, call };
+        executeGrpcMiddlewares(middlewares, ctx)
+            .then(() => {
+                const schema = self.validate().getGrpcSchema();
+                call.on('data', async (chunk) => {
+                    try {
+                        const validated = schema ? self.grpcValidate(schema, chunk) : chunk;
+                        const controller = new self();
+                        const result = await controller.grpcBidiStreamController(
+                            validated,
+                            ctx.metadata,
+                            call
+                        );
+                        if (result !== undefined && result !== null) {
+                            if (Array.isArray(result)) {
+                                result.forEach((item) => call.write(item));
+                            } else {
+                                call.write(result);
+                            }
+                        }
+                    } catch (error) {
+                        call.emit('error', grpcCustomErrorHandler(error));
+                    }
+                });
+                call.on('end', () => call.end());
+            })
+            .catch((error) => call.emit('error', grpcCustomErrorHandler(error)));
+    }
+    // end grpc controllers
 }
 
 module.exports = MasterController;
