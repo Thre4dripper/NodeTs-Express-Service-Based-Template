@@ -2,11 +2,13 @@ const { default: RequestBuilder, PayloadType } = require('./RequestBuilder');
 const asyncHandler = require('./AsyncHandler');
 const { default: SwaggerConfig, SwaggerMethod } = require('../../config/swaggerConfig');
 const ResponseBuilder = require('./ResponseBuilder');
+// start grpc imports
 const { executeGrpcMiddlewares } = require('./GrpcMiddleware');
 const { ValidationError, grpcCustomErrorHandler } = require('../handlers/CustomErrorHandler');
+// end grpc imports
 const { createLogger } = require('./Logger');
 
-const grpcLog = createLogger('grpc');
+const logger = createLogger('master-controller');
 
 /**
  * @class MasterController
@@ -112,11 +114,12 @@ class MasterController {
      */
     async restController(params, query, body, headers, allData) {
         // Controller logic goes here
-        grpcLog.debug({ params, query, body, headers, allData }, 'restController');
+        logger.debug({ params, query, body, headers, allData }, 'restController');
         // Return a ResponseBuilder instance
         return new ResponseBuilder(200, null, 'Success');
     }
 
+    // start socket controller method
     /**
      * @method MasterController.socketController
      * @description Handles the logic for socket events.
@@ -128,42 +131,46 @@ class MasterController {
      */
     socketController(io, socket, payload) {
         // Logic for handling socket events goes here
-        grpcLog.debug({ payload, socketId: socket.id }, 'socketController');
+        logger.debug({ payload, socketId: socket.id }, 'socketController');
     }
+    // end socket controller method
 
+    // start cron controller method
     /**
      * @method MasterController.cronController
      * @description Handles the logic for cron jobs.
      */
     cronController() {
         // Implement cron job logic here
-        grpcLog.info('Cron job executed');
+        logger.info('Cron job executed');
     }
+    // end cron controller method
 
+    // start grpc controllers
     // ─────────────────────────── gRPC controllers ───────────────────────────
     // Override the one(s) you need. The single static rpc() facade dispatches to
     // the matching one based on the proto method's streaming kind.
 
     /** gRPC unary handler (single request → single response). */
     async grpcController(request, metadata, call) {
-        grpcLog.debug({ request }, 'grpcController (unary)');
+        logger.debug({ request }, 'grpcController (unary)');
         return new ResponseBuilder(200, null, 'Success');
     }
 
     /** gRPC server-streaming handler (single request → stream of responses). */
     async grpcServerStreamController(request, metadata, call) {
-        grpcLog.debug({ request }, 'grpcServerStreamController');
+        logger.debug({ request }, 'grpcServerStreamController');
     }
 
     /** gRPC client-streaming handler (stream of requests → single response). */
     async grpcClientStreamController(chunks, metadata, call) {
-        grpcLog.debug({ count: chunks.length }, 'grpcClientStreamController');
+        logger.debug({ count: chunks.length }, 'grpcClientStreamController');
         return new ResponseBuilder(200, null, 'Success');
     }
 
     /** gRPC bidirectional-streaming handler — called once per incoming chunk. */
     async grpcBidiStreamController(chunk, metadata, call) {
-        grpcLog.debug({ chunk }, 'grpcBidiStreamController');
+        logger.debug({ chunk }, 'grpcBidiStreamController');
         return undefined;
     }
 
@@ -211,7 +218,7 @@ class MasterController {
         const self = this;
         try {
             let request = call.request;
-            grpcLog.info({ method: call.getPath ? call.getPath() : 'unary' }, 'gRPC request');
+            logger.info({ method: call.getPath ? call.getPath() : 'unary' }, 'gRPC request');
             const ctx = { request, metadata: call.metadata, call };
             await executeGrpcMiddlewares(middlewares, ctx);
 
@@ -316,6 +323,7 @@ class MasterController {
             })
             .catch((error) => call.emit('error', grpcCustomErrorHandler(error)));
     }
+    // end grpc controllers
 
     /**
      * @method MasterController.joiValidator

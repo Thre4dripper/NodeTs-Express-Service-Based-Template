@@ -4,13 +4,15 @@ import asyncHandler from './AsyncHandler';
 import SwaggerConfig, { ISwaggerDoc, SwaggerMethod } from '../../config/swaggerConfig';
 import ResponseBuilder from './ResponseBuilder';
 import { Server, Socket } from 'socket.io';
+// start grpc imports
 import * as grpc from '@grpc/grpc-js';
 import Joi from 'joi';
 import { GrpcMiddleware, GrpcCallContext, executeGrpcMiddlewares } from './GrpcMiddleware';
 import { ValidationError, grpcCustomErrorHandler } from '../handlers/CustomErrorHandler';
+// end grpc imports
 import { createLogger } from './Logger';
 
-const grpcLog = createLogger('grpc');
+const logger = createLogger('master-controller');
 
 interface IJoiErrors {
     query?: string[];
@@ -138,11 +140,12 @@ class MasterController<P, Q, B> {
         allData: any
     ): Promise<ResponseBuilder> {
         // Controller logic goes here
-        grpcLog.debug({ params, query, body, headers, allData }, 'restController');
+        logger.debug({ params, query, body, headers, allData }, 'restController');
         // Return a ResponseBuilder instance
         return new ResponseBuilder(200, null, 'Success');
     }
 
+    // start socket controller method
     /**
      * @method MasterController.socketController
      * @description Handles the logic for socket events.
@@ -154,18 +157,22 @@ class MasterController<P, Q, B> {
      */
     socketController(io: Server, socket: Socket, payload: any): void {
         // Logic for handling socket events goes here
-        grpcLog.debug({ payload, socketId: socket.id }, 'socketController');
+        logger.debug({ payload, socketId: socket.id }, 'socketController');
     }
+    // end socket controller method
 
+    // start cron controller method
     /**
      * @method MasterController.cronController
      * @description Handles the logic for cron jobs.
      */
     cronController(): void {
         // Implement cron job logic here
-        grpcLog.info('Cron job executed');
+        logger.info('Cron job executed');
     }
+    // end cron controller method
 
+    // start grpc controllers
     // ─────────────────────────── gRPC controllers ───────────────────────────
     // Override the one(s) you need in the child class. A single static rpc()
     // facade (see below) dispatches to the right one based on the proto method's
@@ -179,7 +186,7 @@ class MasterController<P, Q, B> {
         metadata: grpc.Metadata,
         call: grpc.ServerUnaryCall<any, any>
     ): Promise<ResponseBuilder> {
-        grpcLog.debug({ request, peer: call.getPeer() }, 'grpcController (unary)');
+        logger.debug({ request, peer: call.getPeer() }, 'grpcController (unary)');
         return new ResponseBuilder(200, null, 'Success');
     }
 
@@ -192,7 +199,7 @@ class MasterController<P, Q, B> {
         metadata: grpc.Metadata,
         call: grpc.ServerWritableStream<any, any>
     ): Promise<void> {
-        grpcLog.debug({ request, peer: call.getPeer() }, 'grpcServerStreamController');
+        logger.debug({ request, peer: call.getPeer() }, 'grpcServerStreamController');
     }
 
     /**
@@ -204,7 +211,7 @@ class MasterController<P, Q, B> {
         metadata: grpc.Metadata,
         call: grpc.ServerReadableStream<any, any>
     ): Promise<ResponseBuilder> {
-        grpcLog.debug({ count: chunks.length, peer: call.getPeer() }, 'grpcClientStreamController');
+        logger.debug({ count: chunks.length, peer: call.getPeer() }, 'grpcClientStreamController');
         return new ResponseBuilder(200, null, 'Success');
     }
 
@@ -217,7 +224,7 @@ class MasterController<P, Q, B> {
         metadata: grpc.Metadata,
         call: grpc.ServerDuplexStream<any, any>
     ): Promise<any> {
-        grpcLog.debug({ chunk, peer: call.getPeer() }, 'grpcBidiStreamController');
+        logger.debug({ chunk, peer: call.getPeer() }, 'grpcBidiStreamController');
         return undefined;
     }
 
@@ -278,7 +285,7 @@ class MasterController<P, Q, B> {
         const self = this;
         try {
             let request = call.request;
-            grpcLog.info({ method: call.getPath?.() ?? 'unary' }, 'gRPC request');
+            logger.info({ method: call.getPath?.() ?? 'unary' }, 'gRPC request');
 
             const ctx: GrpcCallContext = { request, metadata: call.metadata, call };
             await executeGrpcMiddlewares(middlewares, ctx);
@@ -399,6 +406,7 @@ class MasterController<P, Q, B> {
             })
             .catch((error) => call.emit('error', grpcCustomErrorHandler(error)));
     }
+    // end grpc controllers
 
     /**
      * @method MasterController.joiValidator
