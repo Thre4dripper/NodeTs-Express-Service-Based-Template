@@ -1,13 +1,17 @@
 import MasterController from '../../../utils/MasterController';
 import RequestBuilder from '../../../utils/RequestBuilder';
 import Joi from 'joi';
+// start grpc
 import * as grpc from '@grpc/grpc-js';
+// end grpc
 import { ILoginUser } from '../interfaces';
 import userService from '../services/user.service';
 import ResponseBuilder from '../../../utils/ResponseBuilder';
 import { StatusCodes } from '../../../enums/StatusCodes';
+// start grpc
 // Generated from proto/user/user.proto via `pnpm proto:build` (gitignored, regenerated on postinstall).
 import { LoginUserResponse } from '@proto/generated/user/user';
+// end grpc
 
 export default class LoginUserController extends MasterController<any, any, ILoginUser> {
     static doc() {
@@ -27,7 +31,9 @@ export default class LoginUserController extends MasterController<any, any, ILog
         });
 
         payload.addToBody(schema);
+        // start grpc
         payload.addToGrpcPayload(schema);
+        // end grpc
 
         return payload;
     }
@@ -46,6 +52,7 @@ export default class LoginUserController extends MasterController<any, any, ILog
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User logged in successfully');
     }
 
+    // start grpc
     async grpcController(request: ILoginUser, _metadata: grpc.Metadata): Promise<ResponseBuilder> {
         const { email, password } = request;
 
@@ -66,4 +73,5 @@ export default class LoginUserController extends MasterController<any, any, ILog
         );
         return response;
     }
+    // end grpc
 }

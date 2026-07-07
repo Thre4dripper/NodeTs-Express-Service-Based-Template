@@ -1,3 +1,4 @@
+// start grpc
 /**
  * CALLING A REMOTE gRPC SERVICE — example pattern (not wired by default).
  *
@@ -13,16 +14,21 @@
  *   const client = getRpcClient('profileService', ProfileRpcClient, 'REMOTE_SERVICE_GRPC_ADDRESS');
  *   const profile = await GrpcClientFactory.unary(client, 'getProfile', { userId: user.id });
  */
+// end grpc
 import MasterController from '../../../utils/MasterController';
 import { StatusCodes } from '../../../enums/StatusCodes';
 import ResponseBuilder from '../../../utils/ResponseBuilder';
 import RequestBuilder from '../../../utils/RequestBuilder';
 import Joi from 'joi';
+// start grpc
 import * as grpc from '@grpc/grpc-js';
+// end grpc
 import userService from '../services/user.service';
 import { IRegisterUser } from '../interfaces';
+// start grpc
 // Generated from proto/user/user.proto via `pnpm proto:build` (gitignored, regenerated on postinstall).
 import { RegisterUserResponse } from '@proto/generated/user/user';
+// end grpc
 
 export default class RegisterUserController extends MasterController<null, null, IRegisterUser> {
     static doc() {
@@ -43,7 +49,9 @@ export default class RegisterUserController extends MasterController<null, null,
         });
 
         payload.addToBody(schema);
+        // start grpc
         payload.addToGrpcPayload(schema);
+        // end grpc
 
         return payload;
     }
@@ -62,6 +70,7 @@ export default class RegisterUserController extends MasterController<null, null,
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully');
     }
 
+    // start grpc
     async grpcController(
         request: IRegisterUser,
         _metadata: grpc.Metadata
@@ -81,4 +90,5 @@ export default class RegisterUserController extends MasterController<null, null,
         );
         return response;
     }
+    // end grpc
 }

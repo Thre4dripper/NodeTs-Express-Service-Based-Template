@@ -1,3 +1,4 @@
+// start grpc
 /**
  * CALLING A REMOTE gRPC SERVICE — example pattern (not wired by default).
  *
@@ -13,6 +14,7 @@
  *   const client = getRpcClient('profileService', ProfileRpcClient, 'REMOTE_SERVICE_GRPC_ADDRESS');
  *   const profile = await GrpcClientFactory.unary(client, 'getProfile', { userId: user.id });
  */
+// end grpc
 const MasterController = require('../../../utils/MasterController');
 const { StatusCodes } = require('../../../enums/StatusCodes');
 const ResponseBuilder = require('../../../utils/ResponseBuilder');
@@ -37,7 +39,9 @@ class RegisterUserController extends MasterController {
             password: Joi.string().min(8).max(20).required(),
         });
         payload.addToBody(schema);
+        // start grpc
         payload.addToGrpcPayload(schema);
+        // end grpc
         return payload;
     }
 
@@ -47,6 +51,7 @@ class RegisterUserController extends MasterController {
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User registered successfully');
     }
 
+    // start grpc
     async grpcController(request) {
         const { name, email, password } = request;
         const user = await userService.registerUser({ name, email, password });
@@ -57,6 +62,7 @@ class RegisterUserController extends MasterController {
         );
         return response;
     }
+    // end grpc
 }
 
 module.exports = RegisterUserController;

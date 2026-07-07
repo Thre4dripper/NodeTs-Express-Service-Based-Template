@@ -21,7 +21,9 @@ class LoginUserController extends MasterController {
             password: Joi.string().min(8).max(20).required(),
         });
         payload.addToBody(schema);
+        // start grpc
         payload.addToGrpcPayload(schema);
+        // end grpc
         return payload;
     }
 
@@ -31,6 +33,7 @@ class LoginUserController extends MasterController {
         return new ResponseBuilder(StatusCodes.SUCCESS, response, 'User logged in successfully');
     }
 
+    // start grpc
     async grpcController(request) {
         const { email, password } = request;
         const user = await userService.loginUser({ email, password });
@@ -44,6 +47,7 @@ class LoginUserController extends MasterController {
         );
         return response;
     }
+    // end grpc
 }
 
 module.exports = LoginUserController;
