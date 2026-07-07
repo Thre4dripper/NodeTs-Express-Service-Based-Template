@@ -110,11 +110,13 @@ const server = async () => {
 
     await loadRouters(path.join(__dirname, '../app/routes'));
 
+    // start swagger middleware
     // Swagger UI + on-disk doc generation are development-only.
     if (isDev) {
         SwaggerConfig.finalizeSwagger();
         app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(SwaggerConfig.getSwaggerDocument()));
     }
+    // end swagger middleware
 
     app.use(RestJoiErrorHandler, RestCustomErrorHandler, (err, _req, res, _next) => {
         logger.error({ err }, 'Unhandled error');

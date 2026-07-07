@@ -1,20 +1,27 @@
 const http = require('http');
 const serverConfig = require('./config/expressConfig');
-const process = require('process');
 const { mongooseConnect } = require('./config/mongooseConfig');
 const { sequelizeConnect } = require('./config/sequelizeConfig');
 const SocketConfig = require('./config/socketConfig');
 const CronConfig = require('./config/cronConfig');
+// start grpc import
 const { buildGrpcServer, startGrpcServer } = require('./config/grpcConfig');
+// end grpc import
+// start redis import
 const { redisConnect, redisDisconnect } = require('./app/common/redis.client');
+// end redis import
+// start grpc client import
 const GrpcClientFactory = require('./app/utils/GrpcClientFactory');
+// end grpc client import
 const logger = require('./app/utils/Logger');
 const path = require('path');
 
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
+// start grpc port
 const grpcPort = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 50051;
+// end grpc port
 
 (async () => {
     const app = await serverConfig();
@@ -69,13 +76,14 @@ const grpcPort = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 50051;
     }
     // end if mongoose dialect check
 
-    // Connect to Redis (optional — remove this block if the service doesn't need it)
+    // start redis connect
     try {
         await redisConnect();
     } catch (err) {
         logger.error({ err }, 'Unable to connect to Redis');
         throw err;
     }
+    // end redis connect
 
     // Create an HTTP server instance
     const httpServer = http.createServer(app);
@@ -102,20 +110,26 @@ const grpcPort = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 50051;
     });
     // End listening for HTTP requests
 
-    // Start gRPC server
+    // start grpc bootstrap
     try {
         const grpcServer = await buildGrpcServer();
         await startGrpcServer(grpcServer, grpcPort);
     } catch (err) {
         logger.error({ err }, 'Failed to start gRPC server');
     }
+    // end grpc bootstrap
 
+    // start graceful shutdown
     // Graceful shutdown — close gRPC clients and Redis before exiting.
     const shutdown = async (signal) => {
         logger.info(`${signal} received — shutting down gracefully...`);
         try {
+            // start grpc shutdown
             GrpcClientFactory.closeAllClients();
+            // end grpc shutdown
+            // start redis shutdown
             await redisDisconnect();
+            // end redis shutdown
         } catch (err) {
             logger.error({ err }, 'Error during shutdown');
         }
@@ -124,4 +138,5 @@ const grpcPort = process.env.GRPC_PORT ? Number(process.env.GRPC_PORT) : 50051;
 
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
+    // end graceful shutdown
 })();
