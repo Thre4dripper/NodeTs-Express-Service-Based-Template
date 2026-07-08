@@ -274,6 +274,13 @@ Cron jobs are initialized from `config/cronConfig.ts` and `config/cronConfig.js`
 ### Controller
 
 ```typescript
+import Joi from 'joi';
+import MasterController from './app/utils/MasterController';
+import RequestBuilder from './app/utils/RequestBuilder';
+import ResponseBuilder from './app/utils/ResponseBuilder';
+import { StatusCodes } from './app/enums/StatusCodes';
+import { RegisterUserResponse } from './proto/generated/user/user';
+
 class Controller extends MasterController<IParams, IQuery, IBody> {
     // swagger documetation for the api
     static doc() {
@@ -296,7 +303,16 @@ class Controller extends MasterController<IParams, IQuery, IBody> {
                 lastName: Joi.string().required(),
                 email: Joi.string().email().required(),
                 password: Joi.string().min(8).max(20).required(),
-            }),
+            })
+        );
+
+        // gRPC payload validation can reuse the same Joi schema shape.
+        payload.addToGrpcPayload(
+            Joi.object().keys({
+                name: Joi.string().required(),
+                email: Joi.string().email().required(),
+                password: Joi.string().min(8).max(20).required(),
+            })
         );
 
         // request query validation
@@ -304,14 +320,14 @@ class Controller extends MasterController<IParams, IQuery, IBody> {
             Joi.object().keys({
                 limit: Joi.number().required(),
                 offset: Joi.number().required(),
-            }),
+            })
         );
 
         // request params validation
         payload.addToPath(
             Joi.object().keys({
                 id: Joi.number().required(),
-            }),
+            })
         );
         return payload;
     }
@@ -322,9 +338,25 @@ class Controller extends MasterController<IParams, IQuery, IBody> {
         query: IQuery,
         body: IBody,
         headers: any,
-        allData: any): Promise<ResponseBuilder> {
+        allData: any
+    ): Promise<ResponseBuilder> {
         // your code here
         return new ResponseBuilder(200, Response, 'Success Message');
+    }
+
+    // gRPC controller function
+    async grpcController(payload: IBody): Promise<ResponseBuilder> {
+        const grpcResponse: RegisterUserResponse = {
+            user: {
+                id: '1',
+                name: payload.name,
+                email: payload.email,
+            },
+            message: 'User created',
+        };
+
+        const response = new ResponseBuilder(StatusCodes.CREATED, grpcResponse, 'User created');
+        return response;
     }
 
     // socket controller function
@@ -363,34 +395,38 @@ export default Controller;
 - **socket:** Socket instance
 - **payload:** Data sent from the client
 
+#### grpcController Parameters
+
+- **payload:** Validated gRPC request payload from the proto method.
+
+For TypeScript gRPC responses, type the data object with the generated proto response type before
+wrapping it in `ResponseBuilder`. This makes the proto contract enforce the controller response
+shape at compile time.
+
 ### Router File
 
 ```typescript
-import express from 'express'
-import Controller from '../Controller'
+import express from 'express';
+import Controller from '../Controller';
 
 export default (app: express.Application) => {
     // REST Routes
     Controller.get(app, '/user/:id', [
         /* Comma separated middlewares */
-    ])
+    ]);
     Controller.post(app, '/user/:id', [
         /* Comma separated middlewares */
-    ])
+    ]);
     Controller.put(app, '/user/:id', [
         /* Comma separated middlewares */
-    ])
+    ]);
     Controller.delete(app, '/user/:id', [
         /* Comma separated middlewares */
-    ])
+    ]);
     Controller.patch(app, '/user/:id', [
         /* Comma separated middlewares */
-    ])
-
-    // Socket Events
-    // Any payload you send from the client to this event will be available in the socketController function
-    Controller.socketIO('Event Name')
-}
+    ]);
+};
 ```
 
 > **Important**: Make sure to name your router file as `*.routes.ts` or `*.routes.js`
@@ -399,12 +435,68 @@ export default (app: express.Application) => {
 > put it in the routes directory, and it will be automatically
 > taken care by the package.
 
+### gRPC Service File
+
+```typescript
+import * as grpc from '@grpc/grpc-js';
+import { loadProto } from '../../config/grpcConfig';
+import RegisterUserController from '../apis/user/controllers/register.user.controller';
+
+export default (server: grpc.Server) => {
+    const proto = loadProto('user/user.proto') as any;
+    const userService = proto.user.UserRpc.service;
+
+    server.addService(userService, {
+        register: RegisterUserController.rpc([]),
+    });
+};
+```
+
+> **Important**: Make sure to name your gRPC module as `*.grpc.ts` or `*.grpc.js` and place it in
+> `app/grpc`.
+
+### Remote gRPC Client
+
+```typescript
+import getRpcClient from '../../common/grpc.client';
+import { GrpcClientFactory } from '../../utils/GrpcClientFactory';
+import { UserRpcClient } from '../../../proto/generated/user/user';
+
+const client = getRpcClient('userService', UserRpcClient, 'REMOTE_SERVICE_GRPC_ADDRESS');
+const result = await GrpcClientFactory.unary(client, 'register', {
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    password: 'password123',
+});
+```
+
+> **Note:** `REMOTE_SERVICE_GRPC_ADDRESS` is only an example env var. Pass any env var name that
+> points to the remote service address.
+
+### Socket File
+
+```typescript
+import RegisterUserController from '../apis/user/controllers/register.user.controller';
+
+RegisterUserController.socketIO('hello');
+```
+
+> **Important**: Make sure to name your socket module as `*.socket.ts` or `*.socket.js` and place it
+> in `app/sockets`.
+
 ### Cron File
 
 ```typescript
+import MasterController from '../utils/MasterController';
+import CronBuilder from '../utils/CronBuilder';
+import { CronWeekday } from '../enums/CronJob';
+import { createLogger } from '../utils/Logger';
+
+const log = createLogger('cron');
+
 class DemoCron extends MasterController<null, null, null> {
     cronController() {
-        console.log('Cron job is running');
+        log.info('Cron job is running');
     }
 }
 
@@ -414,15 +506,15 @@ DemoCron.cronJob('*/5 * * * * *');
 // Using CronBuilder
 DemoCron.cronJob(
     new CronBuilder()
-    .every()
-    .second()
-    .every()
-    .specificMinute([10, 20, 30])
-    .every()
-    .dayOfMonth(CronMonth.January)
-    .every()
-    .dayOfWeek(CronWeekday.Friday)
-    .build(),
+        .every()
+        .second()
+        .every()
+        .specificMinute([10, 20, 30])
+        .every()
+        .dayOfMonth()
+        .every()
+        .dayOfWeek(CronWeekday.Friday)
+        .build()
 );
 ```
 
