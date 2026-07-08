@@ -15,14 +15,14 @@ proto/
 Generate type-safe stubs with ts-proto:
 
 ```bash
-pnpm proto:build           # runs scripts/proto-gen.sh src-typescript/proto
+pnpm proto:build-ts        # runs scripts/proto-gen.sh src-typescript/proto
 ```
 
-This also runs automatically on **`postinstall`**, so a fresh clone has working
-stubs right after `pnpm install` — no manual step and no system `protoc` required
-(the bundled compiler ships with the `grpc-tools` dev dependency). The generated
-output is git-ignored; it is always rebuilt from the `.proto` files, which are the
-single source of truth.
+`pnpm build` runs this before compiling TypeScript. For a fresh clone, run
+`pnpm proto:build-ts` after `pnpm install` if the generated folder does not exist.
+No system `protoc` is required because the bundled compiler ships with the
+`grpc-tools` dev dependency. The generated output is git-ignored; it is always
+rebuilt from the `.proto` files, which are the single source of truth.
 
 Output lands in `proto/generated/` and is imported via the `@proto/*` path alias,
 e.g. `import { UserRpcService } from '@proto/generated/user/user'`. The demo user

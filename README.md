@@ -16,14 +16,16 @@
 ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat-square&logo=MongoDB&logoColor=white)
 ![Validations](https://img.shields.io/badge/-Validations-FF0000?style=flat-square)
 ![Socket](https://img.shields.io/badge/-Socket-FF6900?style=flat-square&logo=Socket.io&logoColor=white)
+![gRPC](https://img.shields.io/badge/-gRPC-244c5a?style=flat-square)
+![Redis](https://img.shields.io/badge/-Redis-DC382D?style=flat-square&logo=Redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat-square&logo=Swagger&logoColor=white)
 ![CronJobs](https://img.shields.io/badge/-CronJobs-00FFFF?style=flat-square)
 
-A fully configurable Node.js, Express, and TypeScript server template with a service-based architecture
-that can interact with MySQL, PostgresSQL, Sqlite, MariaDB, MSSql, DB2, Snowflake, Oracle, MongoDB.
-Out-of-the-box validation, documentation generation, and
-more.
+A configurable Node.js service template with TypeScript and JavaScript trees, Express REST APIs,
+Socket.IO events, cron jobs, Redis clients, and gRPC server/client support. It is designed for
+service-based backends that can run against SQL databases through Sequelize or MongoDB through
+Mongoose, with validation, Swagger documentation, structured logging, and generated gRPC types.
 
 ## Features
 
@@ -33,10 +35,45 @@ more.
 - **Database Compatibility**: Interact with MySQL, PostgreSQL, MariaDB, Sqlite, MSSql, MongoDB.
 - **Validation Mechanism**: Pre-built validations for request payloads.
 - **Automated Swagger Documentation**: Automatically generated documentation available at `/api-docs`.
+- **gRPC Server + Client Helpers**: Local protos, generated TypeScript types, health checks, reflection, and reusable client caching.
+- **Redis Clients**: Named lazy Redis clients for cache/session workloads with graceful shutdown.
 - **Service-Based Architecture**: Modular approach for better organization and scalability.
-- **Socket Events**: Socket event handling using Socket.io.
+- **Socket Events**: Socket modules self-register events from `app/sockets`.
 - **Docker**: Dockerized for easy deployment.
-- **Cron Jobs**: Schedule tasks using cron jobs.
+- **Cron Jobs**: Cron modules self-register jobs from `app/crons`.
+- **Structured Logging**: Pino logger with pretty development output and JSON production output.
+
+## Project Layout
+
+Both source trees expose the same application shape. The TypeScript tree includes generated proto
+types; the JavaScript tree loads proto files at runtime.
+
+```text
+src-typescript/
+    server.ts                         # HTTP, Socket.IO, cron, Redis, and gRPC bootstrap
+    app/
+        apis/                           # REST + gRPC controllers, repositories, services
+        common/
+            grpc.client.ts                # Generic remote gRPC client helper
+            redis.client.ts               # Named Redis clients and lifecycle helpers
+        crons/*.cron.ts                 # Auto-loaded cron modules
+        grpc/*.grpc.ts                  # Auto-loaded gRPC service modules
+        middlewares/                    # REST + gRPC auth/token middleware
+        routes/*.routes.ts              # Auto-loaded REST route modules
+        sockets/*.socket.ts             # Auto-loaded Socket.IO event modules
+        utils/                          # MasterController, builders, logger, gRPC client factory
+    config/
+        grpcConfig.ts                   # gRPC server, route loader, health, reflection
+        redisConfig.ts                  # Redis host/TLS/password/client config
+        socketConfig.ts                 # Socket.IO init + module loader
+        cronConfig.ts                   # Cron module loader + scheduler
+    proto/
+        shared/*.proto                  # Shared messages + health contract
+        user/*.proto                    # Demo user RPC contract
+        generated/                      # ts-proto output, git-ignored
+```
+
+JavaScript mirrors live in `src-javascript/` with the same directory names and `.js` extensions.
 
 ## Modules
 
@@ -48,22 +85,67 @@ more.
 
 ### MasterController (Heart of the application)
 
-The `MasterController` is the backbone, providing functionalities for managing HTTP requests, socket events, payload
-validation, and more.
+The `MasterController` is the backbone, providing functionality for REST requests, gRPC handlers,
+Socket.IO events, cron jobs, payload validation, and Swagger documentation.
 
 #### Features
 
 - **Controller Logic Handling**: `restController` method manages HTTP requests.
+- **gRPC Handling**: `grpcController` plus the static `rpc()` facade manage unary and streaming gRPC methods.
 - **Socket Event Handling**: `socketController` method manages socket events.
 - **Cron Job Scheduling**: `cronController` method schedules cron jobs.
-- **Payload Validation**: `joiValidator` method validates incoming request payloads.
+- **Payload Validation**: `RequestBuilder` validates REST body/query/path data and gRPC payloads.
 - **Swagger Documentation Generation**: `doc` method generates Swagger documentation.
 - **Route Handling**: `get`, `post`, `put`, and `delete` methods register routes within the Express router.
 
 #### Usage
 
-Extend the `MasterController` to create controller classes for specific routes or socket events. Use the provided
-methods for efficient request handling, validation, and documentation generation.
+Extend the `MasterController` to create controller classes for REST, gRPC, socket, or cron work. Use
+the provided static registration methods so each transport can be auto-loaded from its own module
+directory.
+
+### gRPC
+
+gRPC is bootstrapped from `src-typescript/config/grpcConfig.ts` and
+`src-javascript/config/grpcConfig.js`.
+
+- Service modules live in `app/grpc` and must be named `*.grpc.ts` or `*.grpc.js`.
+- Protos live in `src-typescript/proto`; keep `.proto` files committed and generated output ignored.
+- TypeScript stubs are generated into `src-typescript/proto/generated` with `pnpm proto:build-ts`.
+- `pnpm build` runs `proto:build-ts` before compiling TypeScript.
+- The JS tree uses `@grpc/proto-loader` at runtime and does not require generated JS stubs.
+- Health checks are always enabled from `proto/shared/health.proto`.
+- gRPC reflection is enabled in development-like environments (`development`, `dev`, `local`).
+- Remote service consumers should use `app/common/grpc.client.ts` or `.js`, backed by `GrpcClientFactory` for cached clients and normalized errors.
+
+### Redis
+
+Redis is configured in `config/redisConfig.ts` and `config/redisConfig.js`, then exposed from
+`app/common/redis.client.ts` and `app/common/redis.client.js`.
+
+- `cacheClient` uses Redis DB `0` for cache-like workloads.
+- `sessionClient` uses Redis DB `1` for session-like workloads.
+- `redisConnect()` is called during server bootstrap after the database connection succeeds.
+- `redisDisconnect()` is called during graceful shutdown.
+- `REDIS_ADDRESS`, `REDIS_PASSWORD`, and `REDIS_TLS` control the connection.
+
+### Socket.IO
+
+Sockets are initialized from `config/socketConfig.ts` and `config/socketConfig.js`.
+
+- Socket modules live in `app/sockets` and must be named `*.socket.ts` or `*.socket.js`.
+- Each module imports a controller and calls `Controller.socketIO('event-name')`.
+- `SocketConfig.InitSocketModules()` recursively loads socket modules at startup.
+- `socketController(io, socket, payload)` handles incoming event payloads.
+
+### Cron Jobs
+
+Cron jobs are initialized from `config/cronConfig.ts` and `config/cronConfig.js`.
+
+- Cron modules live in `app/crons` and must be named `*.cron.ts` or `*.cron.js`.
+- Each module calls `Controller.cronJob(pattern)` with a crontab string or `CronBuilder` output.
+- `CronConfig.InitCronJobs()` recursively loads cron modules at startup.
+- `CronConfig.startCronJobs()` registers and starts all collected cron jobs.
 
 ## Installation
 
@@ -89,30 +171,43 @@ methods for efficient request handling, validation, and documentation generation
 > #### Clone this repo to your local machine using `
 >
 > ```bash
-> $ git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
+> git clone https://github.com/Thre4dripper/NodeTs-Express-Service-Based-Template
 > ```
+>
 > #### Install dependencies
 >
 > ```bash
-> $ npm install or yarn
+> pnpm install
 > ```
 >
-> #### Start the server
+> #### Generate gRPC TypeScript stubs
 >
 > ```bash
-> $ npm run dev or yarn dev
+> pnpm proto:build-ts
 > ```
 >
-> #### Build the project
+> #### Start the TypeScript server
 >
 > ```bash
-> $ npm run build or yarn build
+> pnpm dev-ts
 > ```
 >
-> #### Run the project
+> #### Start the JavaScript server
 >
 > ```bash
-> $ npm run start or yarn start
+> pnpm dev-js
+> ```
+>
+> #### Build the TypeScript project
+>
+> ```bash
+> pnpm build
+> ```
+>
+> #### Run compiled output
+>
+> ```bash
+> pnpm preview
 > ```
 
 ### Database Setup
@@ -123,55 +218,55 @@ methods for efficient request handling, validation, and documentation generation
 > #### MySQL
 >
 > ```bash
-> $ npm install mysql2
+> pnpm add mysql2
 > ```
 >
 > #### PostgreSQL
 >
 > ```bash
-> $ npm install pg pg-hstore
+> pnpm add pg pg-hstore
 > ```
 >
 > #### Sqlite
 >
 > ```bash
-> $ npm install sqlite
+> pnpm add sqlite3
 > ```
 >
 > #### MariaDB
 >
 > ```bash
-> $ npm install mariadb
+> pnpm add mariadb
 > ```
 >
 > #### MSSql
 >
 > ```bash
-> $ npm install tedious or mssql
+> pnpm add tedious
 > ```
 >
 > #### DB2
 >
 > ```bash
-> $ npm install ibm_db
+> pnpm add ibm_db
 > ```
 >
 > #### Snowflake
 >
 > ```bash
-> $ npm install snowflake-sdk
+> pnpm add snowflake-sdk
 > ```
 >
 > #### Oracle
 >
 > ```bash
-> $ npm install oracledb
+> pnpm add oracledb
 > ```
 >
 > #### MongoDB
 >
 > ```bash
-> $ npm install mongoose
+> pnpm add mongoose
 > ```
 
 ## Creating APIs
@@ -342,6 +437,7 @@ DemoCron.cronJob(
 > #### Docker Environment variables
 >
 > - `PORT` - Port number for the server to run on.
+> - `GRPC_PORT` - Port number for the gRPC server to run on.
 > - `DB_DIALECT` - Database dialect to use. (Options: mysql, postgres, mariadb, sqlite, mssql, mongodb)
 > - `DB_HOST` - Database host.
 > - `DB_PORT` - Database port.
@@ -349,7 +445,11 @@ DemoCron.cronJob(
 > - `DB_PASS` - Database password.
 > - `DB_NAME` - Database name.
 > - `MONGO_URI` - MongoDB URI (Only for MongoDB Dialect).
-> - `JWT_SECRET` - Secret key for JWT.
+> - `DB_SSL`, `DB_SSL_REJECT_UNAUTHORIZED`, `DB_SSL_CA_FILE` - Database TLS settings.
+> - `REDIS_ADDRESS`, `REDIS_PASSWORD`, `REDIS_TLS` - Redis connection settings.
+> - `JWT_PRIVATE_KEY` or `JWT_PRIVATE_KEY_PATH` - RS256 signing key input.
+> - `LOG_LEVEL`, `LOG_TRANSPORT` - Pino logging settings.
+> - `REMOTE_SERVICE_GRPC_ADDRESS` - Example remote gRPC service address for client helpers.
 >
 > #### Build the image
 >
