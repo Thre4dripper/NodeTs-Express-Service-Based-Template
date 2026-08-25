@@ -42,17 +42,17 @@ importers:
         specifier: ^5.4.1
         version: 5.11.1(supports-color@5.5.0)
       joi:
-        specifier: ^17.11.0
-        version: 17.13.4
+        specifier: ^17.13.6
+        version: 17.13.6
       joi-to-swagger:
         specifier: ^6.2.0
-        version: 6.2.0(joi@17.13.4)
+        version: 6.2.0(joi@17.13.6)
       jose:
         specifier: ^5.9.6
         version: 5.10.0
       mongoose:
         specifier: ^8.24.3
-        version: 8.24.3
+        version: 8.24.3(supports-color@5.5.0)
       pg:
         specifier: ^8.11.3
         version: 8.21.0
@@ -866,6 +866,7 @@ packages:
   eslint@9.12.0:
     resolution: {integrity: sha512-UVIOlTEWxwIopRL1wgSQYdnVDcEvs2wyaO6DGo5mXqe3r16IoCNWkR29iHhyaP4cICWjbgbmFUGAhh0GJRuGZw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -1162,8 +1163,8 @@ packages:
     peerDependencies:
       joi: '>=17.1.1'
 
-  joi@17.13.4:
-    resolution: {integrity: sha512-1RuuER6kmt8K8I3nIWvPZKi5RQCb568ZPyY4Pwjlua+yo+63ZTmIwxLZH0heBmiKN4uxjvCiarDrjaeH84xicQ==}
+  joi@17.13.6:
+    resolution: {integrity: sha512-ImNZaq/LSysofih+xIGYfR0WUXMA9GLUNB//YTCSrZptoRmVgaNAdJyi6K1kXi9pkLEoSkoI8I4UwtNiu/D7nw==}
 
   jose@5.10.0:
     resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
@@ -3126,12 +3127,12 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  joi-to-swagger@6.2.0(joi@17.13.4):
+  joi-to-swagger@6.2.0(joi@17.13.6):
     dependencies:
-      joi: 17.13.4
+      joi: 17.13.6
       lodash: 4.18.1
 
-  joi@17.13.4:
+  joi@17.13.6:
     dependencies:
       '@hapi/hoek': 9.3.0
       '@hapi/topo': 5.1.0
@@ -3248,13 +3249,13 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.24.3:
+  mongoose@8.24.3(supports-color@5.5.0):
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
       mongodb: 6.20.0
       mpath: 0.9.0
-      mquery: 5.0.0
+      mquery: 5.0.0(supports-color@5.5.0)
       ms: 2.1.3
       sift: 17.1.3
     transitivePeerDependencies:
@@ -3269,7 +3270,7 @@ snapshots:
 
   mpath@0.9.0: {}
 
-  mquery@5.0.0:
+  mquery@5.0.0(supports-color@5.5.0):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
