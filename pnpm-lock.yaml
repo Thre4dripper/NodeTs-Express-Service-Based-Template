@@ -52,7 +52,7 @@ importers:
         version: 5.10.0
       mongoose:
         specifier: ^8.24.5
-        version: 8.24.5
+        version: 8.24.5(supports-color@5.5.0)
       pg:
         specifier: ^8.11.3
         version: 8.21.0
@@ -121,8 +121,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.2(eslint@9.12.0(supports-color@5.5.0))
       eslint-plugin-prettier:
-        specifier: ^5.1.3
-        version: 5.5.6(eslint-config-prettier@9.1.2(eslint@9.12.0(supports-color@5.5.0)))(eslint@9.12.0(supports-color@5.5.0))(prettier@3.8.5)
+        specifier: ^5.5.7
+        version: 5.5.7(eslint-config-prettier@9.1.2(eslint@9.12.0(supports-color@5.5.0)))(eslint@9.12.0(supports-color@5.5.0))(prettier@3.8.5)
       globals:
         specifier: ^15.11.0
         version: 15.15.0
@@ -156,6 +156,9 @@ packages:
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
+
+  '@dual-bundle/import-meta-resolve@4.2.1':
+    resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
 
   '@eslint-community/eslint-utils@4.9.1':
     resolution: {integrity: sha512-phrYmNiYppR7znFEdqgfWHXR6NCkZEK7hwWDHZUjit/2/U0r6XvkDl0SYnoM51Hq7FhCGdLDT6zxCCOY1hexsQ==}
@@ -836,8 +839,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-prettier@5.5.6:
-    resolution: {integrity: sha512-ifetmTcxWfz+4qRW3pH/ujdTq2jQIj59AxJMIN26K5avYgU8dxycUETQonWiW+wPrYXA0j3Try0l1CnwVQtDqQ==}
+  eslint-plugin-prettier@5.5.7:
+    resolution: {integrity: sha512-WjHyn3GrFd+ZR0rzsLiM4zJZ35PZMOE0SUIxzGmnWNG0126yNfJKJzObmmkYDwHJfGlkz3PSlzyG9ez/LJntwg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': '>=8.0.0'
@@ -1832,8 +1835,8 @@ packages:
     peerDependencies:
       express: '>=4.0.0 || >=5.0.0-beta'
 
-  synckit@0.11.13:
-    resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
+  synckit@0.12.3:
+    resolution: {integrity: sha512-U+/AXT6LWsxnj2vz9HeUuPWBNgdWxjyIEjEPdbJARC9txmgPzo2VEdqnFo4hHaNyMPtycyVJrSaQYeQv/PoyyA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
   tar@6.2.1:
@@ -2064,6 +2067,8 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+
+  '@dual-bundle/import-meta-resolve@4.2.1': {}
 
   '@eslint-community/eslint-utils@4.9.1(eslint@9.12.0(supports-color@5.5.0))':
     dependencies:
@@ -2779,12 +2784,12 @@ snapshots:
     dependencies:
       eslint: 9.12.0(supports-color@5.5.0)
 
-  eslint-plugin-prettier@5.5.6(eslint-config-prettier@9.1.2(eslint@9.12.0(supports-color@5.5.0)))(eslint@9.12.0(supports-color@5.5.0))(prettier@3.8.5):
+  eslint-plugin-prettier@5.5.7(eslint-config-prettier@9.1.2(eslint@9.12.0(supports-color@5.5.0)))(eslint@9.12.0(supports-color@5.5.0))(prettier@3.8.5):
     dependencies:
       eslint: 9.12.0(supports-color@5.5.0)
       prettier: 3.8.5
       prettier-linter-helpers: 1.0.1
-      synckit: 0.11.13
+      synckit: 0.12.3
     optionalDependencies:
       eslint-config-prettier: 9.1.2(eslint@9.12.0(supports-color@5.5.0))
 
@@ -3271,13 +3276,13 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.24.5:
+  mongoose@8.24.5(supports-color@5.5.0):
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
       mongodb: 6.20.0
       mpath: 0.9.0
-      mquery: 5.0.0
+      mquery: 5.0.0(supports-color@5.5.0)
       ms: 2.1.3
       sift: 17.1.3
     transitivePeerDependencies:
@@ -3292,7 +3297,7 @@ snapshots:
 
   mpath@0.9.0: {}
 
-  mquery@5.0.0:
+  mquery@5.0.0(supports-color@5.5.0):
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
@@ -3823,8 +3828,9 @@ snapshots:
       express: 4.22.3
       swagger-ui-dist: 5.32.6
 
-  synckit@0.11.13:
+  synckit@0.12.3:
     dependencies:
+      '@dual-bundle/import-meta-resolve': 4.2.1
       '@pkgr/core': 0.3.6
 
   tar@6.2.1:
